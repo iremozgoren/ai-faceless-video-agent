@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Inter Kurgu";
+        src: url("assets/fonts/Inter-SemiBold.ttf") format("truetype");
+        font-weight: 600;
+      }
+      @font-face {
+        font-family: "Inter Kurgu";
+        src: url("assets/fonts/Inter-Bold.ttf") format("truetype");
+        font-weight: 700;
+      }
+      /* kural-dosyasi.md: 3 renk */
+      :root {
+        --zemin: #0a0a0a;
+        --yazi: #ffffff;
+        --vurgu: #ff2e88;
+        --font: "Inter Kurgu", sans-serif;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: var(--zemin);
+      }
+      #root {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        font-family: var(--font);
+        color: var(--yazi);
+        background: var(--zemin);
+      }
+
+      /* ---------- Zemin katmanı (hiç durağan kalmaz) ---------- */
+      #bg { position: absolute; inset: 0; }
+      #bg-grid {
+        position: absolute;
+        left: -120px; top: -120px;
+        width: 1320px; height: 2400px;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.10) 2.5px, transparent 3px);
+        background-size: 60px 60px;
+      }
+      #bg-glow {
+        position: absolute;
+        left: 90px; top: 360px;
+        width: 900px; height: 900px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 46, 136, 0.22) 0%, rgba(255, 46, 136, 0) 65%);
+      }
+      #bg-progress {
+        position: absolute;
+        left: 0; top: 0;
+        width: 1080px; height: 8px;
+        background: var(--vurgu);
+        transform-origin: 0 50%;
+      }
+
+      /* ---------- Sahneler: görsel alan y 200–1100 ---------- */
+      .scene { position: absolute; inset: 0; }
+      .stage {
+        position: absolute;
+        left: 0; top: 200px;
+        width: 1080px; height: 900px;
+      }
+      .center {
+        position: absolute;
+        left: 0; width: 1080px;
+        text-align: center;
+      }
+      .big { font-weight: 700; letter-spacing: -0.03em; line-height: 0.95; }
+      .pink { color: var(--vurgu); }
+
+      /* S1 */
+      #s1-title { top: 230px; font-size: 200px; line-height: 1.1; }
+      #s1-term {
+        position: absolute;
+        left: 140px; top: 330px;
+        width: 800px; height: 430px;
+        border: 4px solid var(--yazi);
+        border-radius: 28px;
+        background: rgba(255, 255, 255, 0.04);
+        opacity: 0;
+      }
+      .term-dots { position: absolute; left: 32px; top: 28px; }
+      .term-dots i {
+        display: inline-block;
+        width: 22px; height: 22px;
+        margin-right: 12px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.35);
+      }
+      .term-dots i:first-child { background: var(--vurgu); }
+      #s1-line1 {
+        position: absolute;
+        left: 48px; top: 110px;
+        font-size: 72px; font-weight: 700;
+        letter-spacing: -0.02em;
+        white-space: nowrap;
+        clip-path: inset(0 100% 0 0);
+      }
+      #s1-line2 {
+        position: absolute;
+        left: 48px; top: 220px;
+        font-size: 44px; font-weight: 600;
+        color: rgba(255, 255, 255, 0.7);
+        opacity: 0;
+      }
+      #s1-bar {
+        position: absolute;
+        left: 48px; top: 320px;
+        width: 700px; height: 26px;
+        border-radius: 13px;
+        background: rgba(255, 255, 255, 0.15);
+        overflow: hidden;
+        opacity: 0;
+      }
+      #s1-fill {
+        width: 100%; height: 100%;
+        background: var(--vurgu);
+        transform-origin: 0 50%;
+        transform: scaleX(0);
+      }
+
+      /* S2 */
+      #s2-timer { position: absolute; left: 240px; top: 150px; width: 600px; height: 600px; }
+      #s2-timer svg { position: absolute; inset: 0; }
+      #s2-num {
+        position: absolute;
+        left: 0; top: 165px; width: 600px;
+        text-align: center;
+        font-size: 230px;
+      }
+      #s2-label {
+        position: absolute;
+        left: 0; top: 400px; width: 600px;
+        text-align: center;
+        font-size: 44px; font-weight: 600;
+        letter-spacing: 0.2em;
+        color: rgba(255, 255, 255, 0.7);
+      }
+      #s2-q { top: 80px; font-size: 640px; line-height: 1; opacity: 0; }
+
+      /* S3 */
+      #s3-phone {
+        position: absolute;
+        left: 390px; top: 30px;
+        width: 300px; height: 560px;
+        border: 8px solid var(--yazi);
+        border-radius: 52px;
+      }
+      #s3-play {
+        position: absolute;
+        left: 108px; top: 222px;
+        width: 92px; height: 100px;
+        background: var(--vurgu);
+        clip-path: polygon(0 0, 100% 50%, 0 100%);
+      }
+      .heart { position: absolute; width: 70px; height: 64px; opacity: 0; }
+      #s3-count { top: 640px; font-size: 130px; }
+      #s3-label {
+        top: 790px;
+        font-size: 44px; font-weight: 600;
+        letter-spacing: 0.2em;
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      /* S4 */
+      #s4-chart { position: absolute; left: 90px; top: 150px; width: 900px; height: 600px; overflow: visible; }
+      #s4-lira { position: absolute; left: 760px; top: 60px; font-size: 200px; opacity: 0; }
+
+      /* S5 */
+      #s5-a { top: 280px; font-size: 130px; line-height: 1.12; }
+      #s5-b { top: 380px; font-size: 124px; opacity: 0; }
+      #s5-line {
+        position: absolute;
+        left: 96px; top: 530px;
+        width: 888px; height: 16px;
+        border-radius: 8px;
+        background: var(--vurgu);
+        transform-origin: 0 50%;
+        transform: scaleX(0);
+      }
+
+      /* S6 */
+      .dot {
+        position: absolute;
+        width: 28px; height: 28px;
+        margin: -14px 0 0 -14px;
+        border-radius: 50%;
+        background: var(--yazi);
+        opacity: 0;
+      }
+      #s6-target {
+        position: absolute;
+        left: 470px; top: 380px;
+        width: 140px; height: 140px;
+        border: 10px solid var(--vurgu);
+        border-radius: 50%;
+      }
+      #s6-target i {
+        position: absolute;
+        left: 35px; top: 35px;
+        width: 50px; height: 50px;
+        border-radius: 50%;
+        background: var(--vurgu);
+      }
+      #s6-label { top: 790px; font-size: 64px; letter-spacing: 0.15em; opacity: 0; }
+
+      /* S7 */
+      #s7-word { top: 330px; font-size: 230px; }
+      #s7-strike {
+        position: absolute;
+        left: 120px; top: 430px;
+        width: 840px; height: 26px;
+        border-radius: 13px;
+        background: var(--vurgu);
+        transform-origin: 0 50%;
+        transform: rotate(-6deg) scaleX(0);
+      }
+
+      /* S8 */
+      #s8-pill {
+        position: absolute;
+        left: 300px; top: 40px;
+        width: 480px; height: 110px;
+        border: 5px solid var(--vurgu);
+        border-radius: 55px;
+        font-size: 52px; font-weight: 600;
+        letter-spacing: 0.08em;
+        line-height: 100px;
+        text-align: center;
+        opacity: 0;
+      }
+      .kolay { font-size: 150px; opacity: 0; }
+      #s8-k1 { top: 230px; }
+      #s8-k2 { top: 390px; }
+      #s8-k3 { top: 550px; }
+      #s8-no { top: 730px; font-size: 150px; opacity: 0; }
+
+      /* ---------- Altyazı: alt orta, alt kenar y=1300 ---------- */
+      #caps { position: absolute; inset: 0; }
+      .cap {
+        position: absolute;
+        left: 0; width: 1080px;
+        bottom: 620px;
+        padding: 0 90px;
+        text-align: center;
+        font-size: 64px; font-weight: 600;
+        line-height: 1.15;
+        opacity: 0;
+        visibility: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="22.2"
+      data-width="1080"
+      data-height="1920"
+    >
+      <!-- Zemin -->
+      <div id="bg" class="clip" data-start="0" data-duration="22.2" data-track-index="0" data-track-kind="graphics" style="z-index: 0">
+        <div id="bg-grid"></div>
+        <div id="bg-glow"></div>
+        <div id="bg-progress"></div>
+      </div>
+
+      <!-- S1: İlk video / Claude Code -->
+      <div id="s1" class="clip scene" data-start="0" data-duration="4.1" data-track-index="1" data-track-kind="graphics" style="z-index: 2">
+        <div id="s1-in" class="stage">
+          <div id="s1-title" class="center big">İLK<br />VİDEO</div>
+          <div id="s1-term">
+            <div class="term-dots"><i></i><i></i><i></i></div>
+            <div id="s1-line1"><span class="pink">&gt;</span> Claude Code</div>
+            <div id="s1-line2">video_01 hazırlanıyor…</div>
+            <div id="s1-bar"><div id="s1-fill"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S2: 30 saniye / bilmiyorum -->
+      <div id="s2" class="clip scene" data-start="4.1" data-duration="3.35" data-track-index="1" data-track-kind="graphics" style="z-index: 2">
+        <div id="s2-in" class="stage">
+          <div id="s2-timer">
+            <svg viewBox="0 0 600 600" width="600" height="600">
+              <circle cx="300" cy="300" r="250" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="20" />
+              <circle id="s2-arc" cx="300" cy="300" r="250" fill="none" stroke="#ff2e88" stroke-width="20"
+                stroke-linecap="round" stroke-dasharray="1570.8" stroke-dashoffset="0" transform="rotate(-90 300 300)" />
+            </svg>
+            <div id="s2-num" class="big">30</div>
+            <div id="s2-label">SANİYE</div>
+          </div>
+          <div id="s2-q" class="center big pink">?</div>
+        </div>
+      </div>
+
+      <!-- S3: Videolarım tutar / izlenirim -->
+      <div id="s3" class="clip scene" data-start="7.45" data-duration="2.75" data-track-index="1" data-track-kind="graphics" style="z-index: 2">
+        <div id="s3-in" class="stage">
+          <div id="s3-phone"><div id="s3-play"></div></div>
+          <svg id="s3-h1" class="heart" style="left: 720px; top: 380px" viewBox="0 0 70 64"><path d="M35 62 L6 32 A17 17 0 0 1 35 10 A17 17 0 0 1 64 32 Z" fill="#ff2e88" /></svg>
+          <svg id="s3-h2" class="heart" style="left: 790px; top: 260px" viewBox="0 0 70 64"><path d="M35 62 L6 32 A17 17 0 0 1 35 10 A17 17 0 0 1 64 32 Z" fill="#ff2e88" /></svg>
+          <svg id="s3-h3" class="heart" style="left: 700px; top: 160px" viewBox="0 0 70 64"><path d="M35 62 L6 32 A17 17 0 0 1 35 10 A17 17 0 0 1 64 32 Z" fill="#ff2e88" /></svg>
+          <div id="s3-count" class="center big pink">0</div>
+          <div id="s3-label" class="center">İZLENME</div>
+        </div>
+      </div>
+
+      <!-- S4: Hayatım düzene girer / para -->
+      <div id="s4" class="clip scene" data-start="10.2" data-duration="1.75" data-track-index="1" data-track-kind="graphics" style="z-index: 2">
+        <div id="s4-in" class="stage">
+          <svg id="s4-chart" viewBox="0 0 900 600" width="900" height="600">
+            <line x1="0" y1="580" x2="900" y2="580" stroke="rgba(255,255,255,0.2)" stroke-width="4" />
+            <line x1="0" y1="0" x2="0" y2="580" stroke="rgba(255,255,255,0.2)" stroke-width="4" />
+            <polyline id="s4-line" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"
+              points="20,420 130,250 240,500 350,180 460,460 570,260 680,520 790,300 880,400" />
+            <circle id="s4-dot" cx="880" cy="140" r="26" fill="#ff2e88" opacity="0" />
+          </svg>
+          <div id="s4-lira" class="big pink">₺</div>
+        </div>
+      </div>
+
+      <!-- S5: Kazanabilir miyim? / Deneyeceğim -->
+      <div id="s5" class="clip scene" data-start="11.95" data-duration="1.45" data-track-index="1" data-track-kind="graphics" style="z-index: 2">
+        <div id="s5-in" class="stage">
+          <div id="s5-a" class="center big">KAZANABİLİR<br />MİYİM<span class="pink">?</span></div>
+          <div id="s5-b" class="center big">DENEYECEĞİM</div>
+          <div id="s5-line"></div>
+        </div>
+      </div>
+
+      <!-- S6: Herkes / kolay yoldan -->
+      <div id="s6" class="clip scene" data-start="13.4" data-duration="2.65" data-track-index="1" data-track-kind="graphics" style="z-index: 2">
+        <div id="s6-in" class="stage">
+          <div class="dot" style="left: 740px; top: 450px"></div>
+          <div class="dot" style="left: 334px; top: 582px"></div>
+          <div class="dot" style="left: 571px; top: 201px"></div>
+          <div class="dot" style="left: 808px; top: 692px"></div>
+          <div class="dot" style="left: 343px; top: 426px"></div>
+          <div class="dot" style="left: 776px; top: 345px"></div>
+          <div class="dot" style="left: 447px; top: 691px"></div>
+          <div class="dot" style="left: 337px; top: 179px"></div>
+          <div class="dot" style="left: 728px; top: 498px"></div>
+          <div class="dot" style="left: 281px; top: 525px"></div>
+          <div class="dot" style="left: 692px; top: 223px"></div>
+          <div class="dot" style="left: 672px; top: 741px"></div>
+          <div class="dot" style="left: 367px; top: 380px"></div>
+          <div class="dot" style="left: 813px; top: 408px"></div>
+          <div class="dot" style="left: 334px; top: 655px"></div>
+          <div class="dot" style="left: 483px; top: 148px"></div>
+          <div class="dot" style="left: 693px; top: 540px"></div>
+          <div class="dot" style="left: 260px; top: 459px"></div>
+          <div class="dot" style="left: 795px; top: 273px"></div>
+          <div class="dot" style="left: 521px; top: 755px"></div>
+          <div class="dot" style="left: 411px; top: 343px"></div>
+          <div class="dot" style="left: 818px; top: 475px"></div>
+          <div class="dot" style="left: 245px; top: 593px"></div>
+          <div class="dot" style="left: 635px; top: 152px"></div>
+          <div id="s6-target"><i></i></div>
+          <div id="s6-label" class="center big">PARA</div>
+        </div>
+      </div>
+
+      <!-- S7: İşler kolay değil -->
+      <div id="s7" class="clip scene" data-start="16.05" data-duration="1.1" data-track-index="1" data-track-kind="graphics" style="z-index: 2">
+        <div id="s7-in" class="stage">
+          <div id="s7-word" class="center big">KOLAY</div>
+          <div id="s7-strike"></div>
+        </div>
+      </div>
+
+      <!-- S8: kolay kolay kolay yapmıyor -->
+      <div id="s8" class="clip scene" data-start="17.15" data-duration="5.05" data-track-index="1" data-track-kind="graphics" style="z-index: 2">
+        <div id="s8-in" class="stage">
+          <div id="s8-pill">YAPAY ZEKÂ</div>
+          <div id="s8-k1" class="center big kolay">kolay</div>
+          <div id="s8-k2" class="center big kolay">kolay</div>
+          <div id="s8-k3" class="center big kolay">kolay</div>
+          <div id="s8-no" class="center big pink">YAPMIYOR.</div>
+        </div>
+      </div>
+
+      <!-- Altyazılar (en fazla 4 kelime, vurgu kelimesi söylendiğinde pembeye döner) -->
+      <div id="caps" class="clip" data-start="0" data-duration="22.2" data-track-index="2" data-track-kind="captions" style="z-index: 5">
+        <div id="g1" class="cap">Şu an <span id="g1-h1">Claude</span> <span id="g1-h2">Code'da</span></div>
+        <div id="g2" class="cap">ilk videomu yapmaya çalışıyorum.</div>
+        <div id="g3" class="cap">30 saniye konuşmam gerekiyor.</div>
+        <div id="g4" class="cap">Ne konuşacağımı bilmiyorum.</div>
+        <div id="g5" class="cap">Ama olur ya.</div>
+        <div id="g6" class="cap">Belki videolarım tutar.</div>
+        <div id="g7" class="cap">Belki çok <span id="g7-h1">izlenirim.</span></div>
+        <div id="g8" class="cap">Hayatım düzene girer.</div>
+        <div id="g9" class="cap"><span id="g9-h1">Para</span> kazanırım.</div>
+        <div id="g10" class="cap">Herkes yapay zekâyla</div>
+        <div id="g11" class="cap">para kazanmak ister.</div>
+        <div id="g12" class="cap">Herkes <span id="g12-h1">kolay</span> <span id="g12-h2">yoldan.</span></div>
+        <div id="g13" class="cap">Ama işler kolay değil.</div>
+        <div id="g14" class="cap">Yapay zekâ bunları</div>
+      </div>
+
+      <!-- Ses: kesilmiş kayıt (cikti/deneme1-kesim.wav), 0.2 sn sonra başlar -->
+      <audio id="ses" class="clip" src="assets/ses.wav" data-start="0.2" data-duration="20.76" data-track-index="10" data-volume="1"></audio>
+    </div>
+
+    <script>
+      // Tüm zamanlar timeline saniyesi = kesilmiş sesteki zaman + 0.2
+      const O = 0.2;
+      const T = (t) => t + O;
+      const D = 22.2;
+      const tl = gsap.timeline({ paused: true });
+      const IN = "power3.out";
+      const OUT = "power2.in";
+
+      // ---------- Zemin ----------
+      tl.fromTo("#bg-grid", { x: 0, y: 0 }, { x: -60, y: -300, duration: D, ease: "none" }, 0);
+      tl.fromTo("#bg-glow", { x: -120, y: -80, scale: 0.9 }, { x: 140, y: 120, scale: 1.15, duration: D / 2, ease: "sine.inOut" }, 0);
+      tl.to("#bg-glow", { x: -60, y: 260, scale: 0.95, duration: D / 2, ease: "sine.inOut" }, D / 2);
+      tl.fromTo("#bg-progress", { scaleX: 0 }, { scaleX: 1, duration: D, ease: "none" }, 0);
+
+      // ---------- S1 (0 – 4.1) ----------
+      tl.fromTo("#s1-title", { scale: 1.12, y: 0 }, { scale: 1, duration: 0.5, ease: IN }, 0);
+      tl.to("#s1-title", { y: -330, scale: 0.42, duration: 0.35, ease: "power3.inOut" }, T(0.62));
+      tl.fromTo("#s1-term", { y: 80, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: IN }, T(0.62));
+      tl.fromTo("#s1-line1", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.9, ease: "steps(12)" }, T(0.72));
+      tl.fromTo("#s1-line2", { x: -30, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, ease: IN }, T(2.04));
+      tl.fromTo("#s1-bar", { opacity: 0 }, { opacity: 1, duration: 0.25, ease: IN }, T(2.3));
+      tl.fromTo("#s1-fill", { scaleX: 0 }, { scaleX: 0.3, duration: 0.5, ease: "steps(5)" }, T(2.46));
+      tl.to("#s1-fill", { scaleX: 0.68, duration: 0.6, ease: "steps(4)" }, T(3.0));
+      tl.fromTo("#s1-in", { scale: 1 }, { scale: 1.04, duration: 4.1, ease: "none" }, 0);
+
+      // ---------- S2 (4.1 – 7.45) ----------
+      const s2 = { v: 30 };
+      tl.fromTo("#s2-timer", { scale: 0.85, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: IN }, 4.1);
+      tl.fromTo("#s2-num", { scale: 1.3 }, { scale: 1, duration: 0.3, ease: IN }, T(4.02));
+      tl.fromTo(s2, { v: 30 }, {
+        v: 0, duration: 2.6, ease: "none",
+        onUpdate: () => { document.querySelector("#s2-num").textContent = String(Math.ceil(s2.v)); },
+      }, T(4.02));
+      tl.fromTo("#s2-arc", { attr: { "stroke-dashoffset": 0 } }, { attr: { "stroke-dashoffset": 1570.8 }, duration: 2.6, ease: "none" }, T(4.02));
+      // "bilmiyorum" — sert kesme: soru işareti
+      tl.set("#s2-timer", { opacity: 0 }, T(6.56));
+      tl.fromTo("#s2-q", { opacity: 0, scale: 1.4, rotation: -10 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.3, ease: "back.out(2)" }, T(6.56));
+      tl.to("#s2-q", { rotation: 7, duration: 0.5, ease: "sine.inOut" }, T(6.9));
+
+      // ---------- S3 (7.45 – 10.2) — konu değişimi: kayma ----------
+      tl.fromTo("#s3-in", { x: 1080 }, { x: 0, duration: 0.35, ease: IN }, 7.45);
+      tl.fromTo("#s3-phone", { scale: 0.9 }, { scale: 1, duration: 0.4, ease: IN }, 7.45);
+      tl.fromTo("#s3-play", { scale: 1 }, { scale: 1.3, duration: 0.15, ease: IN }, T(8.18));
+      tl.to("#s3-play", { scale: 1, duration: 0.25, ease: "power2.out" }, T(8.33));
+      ["#s3-h1", "#s3-h2", "#s3-h3"].forEach((h, i) => {
+        tl.fromTo(h, { opacity: 0, y: 40, scale: 0.6 }, { opacity: 1, y: 0, scale: 1, duration: 0.25, ease: "back.out(2)" }, T(8.66 + i * 0.12));
+        tl.to(h, { y: -120, opacity: 0, duration: 0.9, ease: "power1.in" }, T(9.0 + i * 0.12));
+      });
+      const s3 = { v: 0 };
+      tl.fromTo("#s3-count", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.25, ease: IN }, T(9.04));
+      tl.fromTo(s3, { v: 0 }, {
+        v: 1250000, duration: 0.45, ease: "power2.out",
+        onUpdate: () => { document.querySelector("#s3-count").textContent = Math.round(s3.v / 1000) * 1000 === 0 ? "0" : (Math.round(s3.v / 1000) * 1000).toLocaleString("tr-TR"); },
+      }, T(9.04));
+      tl.fromTo("#s3-label", { opacity: 0 }, { opacity: 1, duration: 0.25, ease: IN }, T(9.2));
+
+      // ---------- S4 (10.2 – 11.95) ----------
+      tl.fromTo("#s4-chart", { opacity: 0, scale: 0.94 }, { opacity: 1, scale: 1, duration: 0.25, ease: IN }, 10.2);
+      tl.fromTo("#s4-line",
+        { attr: { points: "20,420 130,250 240,500 350,180 460,460 570,260 680,520 790,300 880,400" } },
+        { attr: { points: "20,540 130,490 240,440 350,390 460,340 570,290 680,240 790,190 880,140" }, duration: 0.45, ease: "power3.inOut" },
+        T(10.44));
+      tl.fromTo("#s4-dot", { attr: { r: 0 }, opacity: 1 }, { attr: { r: 26 }, duration: 0.25, ease: "back.out(3)" }, T(11.12));
+      tl.fromTo("#s4-lira", { opacity: 0, scale: 0.5, y: 30 }, { opacity: 1, scale: 1, y: 0, duration: 0.3, ease: "back.out(2)" }, T(11.16));
+      tl.fromTo("#s4-in", { scale: 1 }, { scale: 1.05, duration: 1.75, ease: "none" }, 10.2);
+
+      // ---------- S5 (11.95 – 13.4) — sert kesmeler ----------
+      tl.fromTo("#s5-a", { opacity: 0, scale: 0.92 }, { opacity: 1, scale: 1, duration: 0.25, ease: IN }, 11.95);
+      tl.to("#s5-a", { scale: 1.05, duration: 0.6, ease: "none" }, 12.2);
+      tl.set("#s5-a", { opacity: 0 }, T(12.54));
+      tl.fromTo("#s5-b", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.25, ease: IN }, T(12.54));
+      tl.fromTo("#s5-line", { scaleX: 0 }, { scaleX: 1, duration: 0.35, ease: IN }, T(12.66));
+
+      // ---------- S6 (13.4 – 16.05) — konu değişimi: zoom ----------
+      tl.fromTo("#s6-in", { scale: 1.25, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: IN }, 13.4);
+      tl.fromTo(".dot", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.2, ease: "back.out(2)", stagger: 0.02 }, T(13.34));
+      document.querySelectorAll(".dot").forEach((d) => {
+        const dx = 540 - parseFloat(d.style.left);
+        const dy = 450 - parseFloat(d.style.top);
+        tl.fromTo(d, { x: 0, y: 0 }, { x: dx * 0.3, y: dy * 0.3, duration: 0.9, ease: "sine.inOut" }, T(14.2));
+        tl.to(d, { x: dx, y: dy, scale: 0.3, opacity: 0, duration: 0.45, ease: "power3.in" }, T(15.2));
+      });
+      tl.fromTo("#s6-label", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.25, ease: IN }, T(14.2));
+      tl.fromTo("#s6-target", { scale: 1 }, { scale: 1.35, duration: 0.2, ease: IN }, T(15.6));
+      tl.to("#s6-target", { scale: 1.1, duration: 0.3, ease: "power2.out" }, T(15.8));
+
+      // ---------- S7 (16.05 – 17.15) ----------
+      tl.fromTo("#s7-word", { opacity: 0, scale: 1.12 }, { opacity: 1, scale: 1, duration: 0.25, ease: IN }, 16.05);
+      tl.fromTo("#s7-strike", { scaleX: 0, rotation: -6 }, { scaleX: 1, rotation: -6, duration: 0.2, ease: IN }, T(16.6));
+      tl.to("#s7-word", { opacity: 0.35, duration: 0.2, ease: OUT }, T(16.6));
+      tl.fromTo("#s7-in", { scale: 1 }, { scale: 1.04, duration: 1.1, ease: "none" }, 16.05);
+
+      // ---------- S8 (17.15 – 21.8) ----------
+      tl.fromTo("#s8-pill", { opacity: 0, y: -40 }, { opacity: 1, y: 0, duration: 0.3, ease: IN }, 17.15);
+      [["#s8-k1", 17.98], ["#s8-k2", 18.66], ["#s8-k3", 19.36]].forEach(([k, t]) => {
+        tl.fromTo(k, { opacity: 0, scale: 1.3 }, { opacity: 1, scale: 1, duration: 0.2, ease: IN }, T(t));
+      });
+      tl.to("#s8-k1", { opacity: 0.5, duration: 0.2, ease: OUT }, T(18.66));
+      tl.to("#s8-k1", { opacity: 0.25, duration: 0.2, ease: OUT }, T(19.36));
+      tl.to("#s8-k2", { opacity: 0.5, duration: 0.2, ease: OUT }, T(19.36));
+      tl.to(".kolay", { opacity: 0.18, duration: 0.2, ease: OUT }, T(19.88));
+      tl.fromTo("#s8-no", { opacity: 0, scale: 1.5 }, { opacity: 1, scale: 1, duration: 0.25, ease: "power4.out" }, T(19.88));
+      tl.to("#s8-no", { keyframes: { x: [0, -14, 12, -8, 5, 0] }, duration: 0.3, ease: "none" }, T(20.15));
+      tl.fromTo("#s8-in", { scale: 1 }, { scale: 1.06, duration: 5.05, ease: "none" }, 17.15);
+
+      // ---------- Altyazılar ----------
+      // [id, açılış, kapanış, [[vurgu span, söylendiği an], ...]]  (açılış/kapanış timeline saniyesi)
+      const caps = [
+        ["#g1", T(0.0) - 0.05, T(2.04), [["#g1-h1", T(0.72)], ["#g1-h2", T(1.1)]]],
+        ["#g2", T(2.04), T(4.02) - 0.05, []],
+        ["#g3", T(4.02) - 0.05, T(5.72) - 0.05, []],
+        ["#g4", T(5.72) - 0.05, T(7.4) - 0.05, []],
+        ["#g5", T(7.4) - 0.05, T(8.02) - 0.05, []],
+        ["#g6", T(8.02) - 0.05, T(9.04) - 0.05, []],
+        ["#g7", T(9.04) - 0.05, T(10.12) - 0.05, [["#g7-h1", T(9.4)]]],
+        ["#g8", T(10.12) - 0.05, T(11.16) - 0.05, []],
+        ["#g9", T(11.16) - 0.05, 11.95, [["#g9-h1", T(11.16)]]],
+        ["#g10", T(13.34) - 0.05, T(14.2), []],
+        ["#g11", T(14.2), T(15.08) - 0.05, []],
+        ["#g12", T(15.08) - 0.05, T(15.92) - 0.05, [["#g12-h1", T(15.2)], ["#g12-h2", T(15.5)]]],
+        ["#g13", T(15.92) - 0.05, T(17.06) - 0.05, []],
+        ["#g14", T(17.06) - 0.05, T(17.98), []],
+      ];
+      caps.forEach(([id, s, e, hl]) => {
+        tl.set(id, { visibility: "visible" }, s);
+        tl.fromTo(id, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.25, ease: IN }, s);
+        hl.forEach(([h, t]) => {
+          tl.fromTo(h, { color: "#ffffff" }, { color: "#ff2e88", duration: 0.12, ease: "none" }, t);
+        });
+        tl.to(id, { opacity: 0, duration: 0.2, ease: OUT }, e - 0.2);
+        tl.set(id, { opacity: 0, visibility: "hidden" }, e);
+      });
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

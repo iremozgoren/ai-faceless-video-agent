@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Inter Kurgu";
+        src: url("assets/fonts/Inter-SemiBold.ttf") format("truetype");
+        font-weight: 600;
+      }
+      @font-face {
+        font-family: "Inter Kurgu";
+        src: url("assets/fonts/Inter-Bold.ttf") format("truetype");
+        font-weight: 700;
+      }
+      /* 3 renk: zemin (bu videoya özel lacivert gradyan), beyaz yazı, neon pembe vurgu */
+      :root {
+        --zemin-ust: #0a1a2f;
+        --zemin-alt: #02060d;
+        --yazi: #ffffff;
+        --vurgu: #ff2e88;
+        --font: "Inter Kurgu", sans-serif;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { hyphens: manual; -webkit-hyphens: manual; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--zemin-alt); }
+      #root {
+        position: relative;
+        width: 1080px; height: 1920px;
+        overflow: hidden;
+        font-family: var(--font);
+        color: var(--yazi);
+        background: var(--zemin-alt);
+      }
+
+      /* ---------- Zemin ---------- */
+      #bg { position: absolute; inset: 0; }
+      #bg-grad { position: absolute; inset: 0; background: linear-gradient(180deg, var(--zemin-ust) 0%, var(--zemin-alt) 100%); }
+      .ray {
+        position: absolute;
+        top: -300px;
+        width: 160px; height: 1500px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0) 100%);
+        transform-origin: 50% 0;
+      }
+      #ray1 { left: 180px; }
+      #ray2 { left: 520px; width: 240px; }
+      #ray3 { left: 840px; width: 120px; }
+      .bub {
+        position: absolute;
+        top: 0;
+        border: 2px solid rgba(255, 255, 255, 0.35);
+        border-radius: 50%;
+      }
+      #bg-progress {
+        position: absolute;
+        left: 0; top: 0;
+        width: 1080px; height: 8px;
+        background: var(--vurgu);
+        transform-origin: 0 50%;
+      }
+
+      /* ---------- Sahne ortak ---------- */
+      .scene { position: absolute; inset: 0; }
+      .stage { position: absolute; left: 0; top: 200px; width: 1080px; height: 900px; }
+      .center { position: absolute; left: 0; width: 1080px; text-align: center; }
+      .big { font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; }
+      .pink { color: var(--vurgu); }
+      .label { font-size: 44px; font-weight: 600; letter-spacing: 0.18em; color: rgba(255, 255, 255, 0.75); }
+      .num { top: 300px; font-size: 300px; color: var(--vurgu); opacity: 0; }
+      svg { overflow: visible; }
+
+      /* S0 */
+      #s0-top { top: 120px; }
+      #s0-four { top: 160px; font-size: 640px; line-height: 1; }
+      #s0-sub { top: 830px; opacity: 0; }
+      #s0-whale { position: absolute; left: 0; top: 560px; width: 600px; height: 200px; opacity: 0.22; }
+
+      /* S1 */
+      .kw { position: absolute; width: 130px; height: 420px; opacity: 0; }
+      .kw-in { position: absolute; inset: 0; }
+      .kw-in svg { position: absolute; left: -145px; top: 145px; width: 420px; height: 130px; transform: rotate(90deg); }
+      #s1-surface { position: absolute; left: 0; top: 120px; width: 1080px; height: 40px; }
+      #s1-surf-label { position: absolute; left: 760px; top: 60px; font-size: 32px; opacity: 0; }
+      #s1-nap { position: absolute; left: 0; top: 330px; width: 1080px; opacity: 0; }
+      #s1-nap-n { position: absolute; left: 0; top: 0; width: 1080px; text-align: center; font-size: 200px; }
+      #s1-nap-l { position: absolute; left: 0; top: 230px; width: 1080px; text-align: center; }
+      #s1-day { position: absolute; left: 270px; top: 200px; width: 540px; height: 540px; opacity: 0; }
+      #s1-day svg { position: absolute; inset: 0; }
+      #s1-pct { position: absolute; left: 0; top: 170px; width: 540px; text-align: center; font-size: 170px; }
+      #s1-day-l { position: absolute; left: 0; top: 345px; width: 540px; text-align: center; font-size: 36px; line-height: 1.25; }
+
+      /* S2 */
+      #s2-whale { position: absolute; left: 90px; top: 280px; width: 900px; height: 300px; opacity: 0; }
+      #s2-rings { position: absolute; left: 0; top: 0; width: 1080px; height: 900px; }
+      .ringlbl { font-size: 28px; font-weight: 700; fill: #0a1a2f; text-anchor: middle; }
+      .tag { font-size: 40px; font-weight: 700; fill: #ff2e88; letter-spacing: 0.04em; }
+
+      /* S3 */
+      #s3-whale { position: absolute; left: 200px; top: 110px; width: 680px; height: 249px; opacity: 0; }
+      #s3-year { top: 420px; font-size: 220px; opacity: 0; }
+      #s3-200g { position: absolute; left: 0; top: 400px; width: 1080px; height: 400px; opacity: 0; }
+      #s3-200 { top: 0; font-size: 260px; }
+      #s3-yil { top: 280px; font-size: 54px; }
+      #s3-tl { position: absolute; left: 0; top: 520px; width: 1080px; height: 300px; opacity: 0; }
+      #s3-line, #s3-line-p {
+        position: absolute;
+        left: 140px; top: 100px;
+        width: 800px; height: 8px;
+        border-radius: 4px;
+        transform-origin: 100% 50%;
+      }
+      #s3-line { background: rgba(255, 255, 255, 0.35); }
+      #s3-line-p { background: var(--vurgu); }
+      .tl-dot { position: absolute; top: 88px; width: 32px; height: 32px; border-radius: 50%; background: var(--yazi); }
+      #s3-dl { left: 124px; }
+      #s3-dr { left: 924px; }
+      .tl-lbl { position: absolute; top: 150px; width: 300px; text-align: center; font-size: 40px; font-weight: 700; }
+      #s3-ll { left: -10px; }
+      #s3-lr { left: 790px; }
+      #s3-mini { position: absolute; left: 860px; top: 20px; width: 170px; height: 62px; opacity: 0; }
+
+      /* S4 */
+      #s4-a { position: absolute; inset: 0; }
+      #s4-whale { position: absolute; left: 30px; top: 230px; width: 620px; height: 248px; opacity: 0; }
+            #s4-waves { position: absolute; left: 640px; top: 230px; width: 400px; height: 260px; }
+      .wave { position: absolute; left: 0; top: 0; width: 400px; height: 260px; opacity: 0; transform-origin: 0 50%; }
+      #s4-eq { position: absolute; left: 190px; top: 600px; width: 700px; height: 200px; }
+      .bar {
+        position: absolute;
+        bottom: 0;
+        width: 44px; height: 200px;
+        border-radius: 22px;
+        background: var(--vurgu);
+        transform-origin: 50% 100%;
+        opacity: 0;
+      }
+      #s4-map { position: absolute; inset: 0; opacity: 0; }
+      #s4-map svg { position: absolute; left: 0; top: 0; width: 1080px; height: 900px; }
+      .maplbl { font-size: 32px; font-weight: 600; fill: #ffffff; letter-spacing: 0.08em; }
+      #s4-pulse { position: absolute; left: 160px; top: 530px; width: 60px; height: 60px; opacity: 0; }
+      #s4-pulse i { position: absolute; inset: 0; border-radius: 50%; }
+      #s4-pd { background: var(--vurgu); transform: scale(0.45); }
+      .pr { border: 4px solid var(--vurgu); opacity: 0; }
+
+      /* S5 */
+      .card {
+        position: absolute;
+        width: 440px; height: 180px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-radius: 28px;
+        background: rgba(255, 255, 255, 0.05);
+        opacity: 0;
+      }
+      .card b { position: absolute; left: 34px; top: 52px; font-size: 64px; font-weight: 700; color: var(--vurgu); line-height: 1; }
+      .card span { position: absolute; left: 140px; top: 66px; font-size: 38px; font-weight: 600; line-height: 1.2; }
+      #c1 { left: 85px; top: 30px; }
+      #c2 { left: 555px; top: 30px; }
+      #c3 { left: 85px; top: 240px; }
+      #c4 { left: 555px; top: 240px; }
+      #s5-q { top: 480px; font-size: 104px; opacity: 0; }
+      #s5-pill {
+        position: absolute;
+        left: 130px; top: 760px;
+        width: 820px; height: 124px;
+        border-radius: 62px;
+        background: var(--vurgu);
+        color: #0a1a2f;
+        font-size: 54px; font-weight: 700;
+        line-height: 124px;
+        text-align: center;
+        padding-left: 70px;
+        opacity: 0;
+      }
+      #s5-pill svg { position: absolute; left: 64px; top: 32px; width: 64px; height: 60px; }
+
+      /* ---------- Altyazı ---------- */
+      #caps { position: absolute; inset: 0; }
+      .cap {
+        position: absolute;
+        left: 0; width: 1080px;
+        bottom: 620px;
+        padding: 0 90px;
+        text-align: center;
+        font-size: 64px; font-weight: 600;
+        line-height: 1.15;
+        opacity: 0;
+        visibility: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Balina silüetleri (elle çizilmiş SVG) -->
+    <svg width="0" height="0" style="position: absolute">
+      <defs>
+        <symbol id="w-kasalot" viewBox="0 0 400 120">
+          <path d="M10,40 C10,15 40,8 120,10 L250,18 C300,22 340,40 360,55 L385,40 C392,36 398,42 392,50 L378,62 L394,74 C399,82 392,86 385,82 L360,70 C330,85 280,95 220,98 L120,100 C60,102 20,95 12,75 Z" fill="#ffffff" />
+        </symbol>
+        <symbol id="w-genel" viewBox="0 0 600 200">
+          <path d="M20,110 C40,70 120,55 220,58 C330,62 430,80 500,100 L560,70 C575,62 590,70 580,85 L555,112 L582,140 C590,154 575,160 562,152 L500,124 C420,150 300,160 200,156 C110,152 40,140 20,110 Z" fill="#ffffff" />
+          <circle cx="100" cy="104" r="7" fill="#0a1a2f" />
+        </symbol>
+        <symbol id="w-gronland" viewBox="0 0 600 220">
+          <path d="M30,140 C30,80 80,40 160,48 C200,52 220,70 250,78 C330,96 420,104 480,112 L540,84 C556,76 570,86 560,100 L536,128 L562,154 C572,168 556,174 544,166 L480,138 C400,168 280,182 180,180 C90,178 32,170 30,140 Z" fill="#ffffff" />
+          <path d="M40,150 C90,120 150,110 210,120" stroke="#0a1a2f" stroke-width="5" fill="none" stroke-linecap="round" />
+        </symbol>
+        <symbol id="w-kambur" viewBox="0 0 600 240">
+          <path d="M20,110 C40,76 110,62 210,64 C320,68 420,84 490,104 L548,76 C562,68 578,78 568,92 L544,118 L570,146 C580,160 562,166 550,158 L490,130 C410,154 300,164 200,160 C110,156 40,144 20,110 Z" fill="#ffffff" />
+          <path d="M150,140 C190,170 250,210 300,228 C310,232 314,222 306,216 C270,190 230,160 200,140 Z" fill="#ffffff" />
+          <circle cx="90" cy="102" r="6" fill="#0a1a2f" />
+        </symbol>
+      </defs>
+    </svg>
+
+    <div id="root" data-composition-id="main" data-start="0" data-duration="55.8" data-width="1080" data-height="1920">
+      <!-- Zemin: okyanus gradyanı, ışık hüzmeleri, kabarcıklar -->
+      <div id="bg" class="clip" data-start="0" data-duration="55.8" data-track-index="0" data-track-kind="graphics" style="z-index: 0">
+        <div id="bg-grad"></div>
+        <div id="ray1" class="ray"></div>
+        <div id="ray2" class="ray"></div>
+        <div id="ray3" class="ray"></div>
+        <div class="bub" data-dur="7.0" data-s="-7.00" style="left: 40px; width: 8px; height: 8px"></div>
+        <div class="bub" data-dur="8.5" data-s="-5.75" style="left: 273px; width: 15px; height: 15px"></div>
+        <div class="bub" data-dur="10.0" data-s="-4.50" style="left: 506px; width: 22px; height: 22px"></div>
+        <div class="bub" data-dur="11.5" data-s="-3.25" style="left: 739px; width: 9px; height: 9px"></div>
+        <div class="bub" data-dur="7.0" data-s="-2.00" style="left: 972px; width: 16px; height: 16px"></div>
+        <div class="bub" data-dur="8.5" data-s="-0.75" style="left: 40px; width: 23px; height: 23px"></div>
+        <div class="bub" data-dur="10.0" data-s="0.50" style="left: 273px; width: 10px; height: 10px"></div>
+        <div class="bub" data-dur="11.5" data-s="1.75" style="left: 506px; width: 17px; height: 17px"></div>
+        <div class="bub" data-dur="7.0" data-s="3.00" style="left: 739px; width: 24px; height: 24px"></div>
+        <div class="bub" data-dur="8.5" data-s="4.25" style="left: 972px; width: 11px; height: 11px"></div>
+        <div class="bub" data-dur="10.0" data-s="5.50" style="left: 40px; width: 18px; height: 18px"></div>
+        <div class="bub" data-dur="11.5" data-s="6.75" style="left: 273px; width: 25px; height: 25px"></div>
+        <div class="bub" data-dur="7.0" data-s="8.00" style="left: 506px; width: 12px; height: 12px"></div>
+        <div class="bub" data-dur="8.5" data-s="9.25" style="left: 739px; width: 19px; height: 19px"></div>
+        <div class="bub" data-dur="10.0" data-s="10.50" style="left: 972px; width: 26px; height: 26px"></div>
+        <div class="bub" data-dur="11.5" data-s="11.75" style="left: 40px; width: 13px; height: 13px"></div>
+        <div class="bub" data-dur="7.0" data-s="13.00" style="left: 273px; width: 20px; height: 20px"></div>
+        <div class="bub" data-dur="8.5" data-s="14.25" style="left: 506px; width: 27px; height: 27px"></div>
+        <div class="bub" data-dur="10.0" data-s="15.50" style="left: 739px; width: 14px; height: 14px"></div>
+        <div class="bub" data-dur="11.5" data-s="16.75" style="left: 972px; width: 21px; height: 21px"></div>
+        <div class="bub" data-dur="7.0" data-s="18.00" style="left: 40px; width: 28px; height: 28px"></div>
+        <div class="bub" data-dur="8.5" data-s="19.25" style="left: 273px; width: 8px; height: 8px"></div>
+        <div class="bub" data-dur="10.0" data-s="20.50" style="left: 506px; width: 15px; height: 15px"></div>
+        <div class="bub" data-dur="11.5" data-s="21.75" style="left: 739px; width: 22px; height: 22px"></div>
+        <div class="bub" data-dur="7.0" data-s="23.00" style="left: 972px; width: 9px; height: 9px"></div>
+        <div class="bub" data-dur="8.5" data-s="24.25" style="left: 40px; width: 16px; height: 16px"></div>
+        <div class="bub" data-dur="10.0" data-s="25.50" style="left: 273px; width: 23px; height: 23px"></div>
+        <div class="bub" data-dur="11.5" data-s="26.75" style="left: 506px; width: 10px; height: 10px"></div>
+        <div class="bub" data-dur="7.0" data-s="28.00" style="left: 739px; width: 17px; height: 17px"></div>
+        <div class="bub" data-dur="8.5" data-s="29.25" style="left: 972px; width: 24px; height: 24px"></div>
+        <div class="bub" data-dur="10.0" data-s="30.50" style="left: 40px; width: 11px; height: 11px"></div>
+        <div class="bub" data-dur="11.5" data-s="31.75" style="left: 273px; width: 18px; height: 18px"></div>
+        <div class="bub" data-dur="7.0" data-s="33.00" style="left: 506px; width: 25px; height: 25px"></div>
+        <div class="bub" data-dur="8.5" data-s="34.25" style="left: 739px; width: 12px; height: 12px"></div>
+        <div class="bub" data-dur="10.0" data-s="35.50" style="left: 972px; width: 19px; height: 19px"></div>
+        <div class="bub" data-dur="11.5" data-s="36.75" style="left: 40px; width: 26px; height: 26px"></div>
+        <div class="bub" data-dur="7.0" data-s="38.00" style="left: 273px; width: 13px; height: 13px"></div>
+        <div class="bub" data-dur="8.5" data-s="39.25" style="left: 506px; width: 20px; height: 20px"></div>
+        <div class="bub" data-dur="10.0" data-s="40.50" style="left: 739px; width: 27px; height: 27px"></div>
+        <div class="bub" data-dur="11.5" data-s="41.75" style="left: 972px; width: 14px; height: 14px"></div>
+        <div class="bub" data-dur="7.0" data-s="43.00" style="left: 40px; width: 21px; height: 21px"></div>
+        <div class="bub" data-dur="8.5" data-s="44.25" style="left: 273px; width: 28px; height: 28px"></div>
+        <div class="bub" data-dur="10.0" data-s="45.50" style="left: 506px; width: 8px; height: 8px"></div>
+        <div class="bub" data-dur="11.5" data-s="46.75" style="left: 739px; width: 15px; height: 15px"></div>
+        <div class="bub" data-dur="7.0" data-s="48.00" style="left: 972px; width: 22px; height: 22px"></div>
+        <div class="bub" data-dur="8.5" data-s="49.25" style="left: 40px; width: 9px; height: 9px"></div>
+        <div class="bub" data-dur="10.0" data-s="50.50" style="left: 273px; width: 16px; height: 16px"></div>
+        <div class="bub" data-dur="11.5" data-s="51.75" style="left: 506px; width: 23px; height: 23px"></div>
+        <div class="bub" data-dur="7.0" data-s="53.00" style="left: 739px; width: 10px; height: 10px"></div>
+        <div class="bub" data-dur="8.5" data-s="54.25" style="left: 972px; width: 17px; height: 17px"></div>
+        <div id="bg-progress"></div>
+      </div>
+
+      <!-- S0: Giriş — 4 şey -->
+      <div id="s0" class="clip scene" data-start="0" data-duration="4.4" data-track-index="1" data-track-kind="graphics" style="z-index: 2">
+        <div id="s0-in" class="stage">
+          <svg id="s0-whale"><use href="#w-genel" width="600" height="200" /></svg>
+          <div id="s0-top" class="center label">ÜBER WALE</div>
+          <div id="s0-four" class="center big">4</div>
+          <div id="s0-sub" class="center label">KAUM BEKANNTE FAKTEN</div>
+        </div>
+      </div>
+
+      <!-- S1: Kaşalotlar dik uyur -->
+      <div id="s1" class="clip scene" data-start="4.4" data-duration="11.3" data-track-index="1" data-track-kind="graphics" style="z-index: 2">
+        <div id="s1-in" class="stage">
+          <svg id="s1-surface" viewBox="0 0 1080 40">
+            <path id="s1-wave" d="M0,20 Q45,0 90,20 T180,20 T270,20 T360,20 T450,20 T540,20 T630,20 T720,20 T810,20 T900,20 T990,20 T1080,20" stroke="rgba(255,255,255,0.6)" stroke-width="5" fill="none" stroke-dasharray="1300" stroke-dashoffset="1300" />
+          </svg>
+          <div id="s1-surf-label" class="label">OBERFLÄCHE</div>
+          <div id="s1-pod" style="position: absolute; inset: 0">
+            <div id="kw1" class="kw" style="left: 120px; top: 230px"><div class="kw-in"><svg><use href="#w-kasalot" width="420" height="130" /></svg></div></div>
+            <div id="kw2" class="kw" style="left: 300px; top: 300px"><div class="kw-in"><svg><use href="#w-kasalot" width="420" height="130" /></svg></div></div>
+            <div id="kw3" class="kw" style="left: 475px; top: 250px"><div class="kw-in"><svg><use href="#w-kasalot" width="420" height="130" /></svg></div></div>
+            <div id="kw4" class="kw" style="left: 650px; top: 320px"><div class="kw-in"><svg><use href="#w-kasalot" width="420" height="130" /></svg></div></div>
+            <div id="kw5" class="kw" style="left: 830px; top: 240px"><div class="kw-in"><svg><use href="#w-kasalot" width="420" height="130" /></svg></div></div>
+          </div>
+          <div id="s1-nap">
+            <div id="s1-nap-n" class="big">10–15</div>
+            <div id="s1-nap-l" class="label">MINUTEN NICKERCHEN</div>
+          </div>
+          <div id="s1-day">
+            <svg viewBox="0 0 540 540" width="540" height="540">
+              <circle cx="270" cy="270" r="230" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="30" />
+              <circle id="s1-arc" cx="270" cy="270" r="230" fill="none" stroke="#ff2e88" stroke-width="30" stroke-linecap="round"
+                stroke-dasharray="1445.13" stroke-dashoffset="1445.13" transform="rotate(-90 270 270)" />
+            </svg>
+            <div id="s1-pct" class="big pink">0&nbsp;%</div>
+            <div id="s1-day-l" class="label">DES TAGES<br />VERSCHLAFEN</div>
+          </div>
+          <div id="s1-num" class="center big num">01</div>
+        </div>
+      </div>
+
+      <!-- S2: Kulak kiri -->
+      <div id="s2" class="clip scene" data-start="15.7" data-duration="15.64" data-track-index="1" data-track-kind="graphics" style="z-index: 2">
+        <div id="s2-in" class="stage">
+          <svg id="s2-whale" viewBox="0 0 600 200">
+            <use href="#w-genel" width="600" height="200" />
+            <circle id="s2-ear-ring" cx="140" cy="98" r="10" fill="none" stroke="#ff2e88" stroke-width="3" opacity="0" />
+            <circle id="s2-ear" cx="140" cy="98" r="0" fill="#ff2e88" />
+          </svg>
+          <svg id="s2-rings" viewBox="0 0 1080 900">
+            <g id="s2-rg">
+              <circle id="ring1" class="ring" cx="540" cy="450" r="60" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="34" stroke-dasharray="376.99" stroke-dashoffset="376.99" transform="rotate(-90 540 450)" />
+              <circle id="ring2" class="ring" cx="540" cy="450" r="102" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="34" stroke-dasharray="640.88" stroke-dashoffset="640.88" transform="rotate(-90 540 450)" />
+              <circle id="ring3" class="ring" cx="540" cy="450" r="144" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="34" stroke-dasharray="904.78" stroke-dashoffset="904.78" transform="rotate(-90 540 450)" />
+              <circle id="ring4" class="ring" cx="540" cy="450" r="186" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="34" stroke-dasharray="1168.67" stroke-dashoffset="1168.67" transform="rotate(-90 540 450)" />
+              <circle id="ring5" class="ring" cx="540" cy="450" r="228" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="34" stroke-dasharray="1432.57" stroke-dashoffset="1432.57" transform="rotate(-90 540 450)" />
+              <circle id="ring6" class="ring" cx="540" cy="450" r="270" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="34" stroke-dasharray="1696.46" stroke-dashoffset="1696.46" transform="rotate(-90 540 450)" />
+              <text id="rl1" class="ringlbl" x="540" y="398" opacity="0">1. JAHR</text>
+              <text id="rl2" class="ringlbl" x="540" y="356" opacity="0">2. JAHR</text>
+              <text id="rl3" class="ringlbl" x="540" y="314" opacity="0">3. JAHR</text>
+              <text id="rl4" class="ringlbl" x="540" y="272" opacity="0">4. JAHR</text>
+              <text id="rl5" class="ringlbl" x="540" y="230" opacity="0">5. JAHR</text>
+              <text id="rl6" class="ringlbl" x="540" y="188" opacity="0">6. JAHR</text>
+              <line id="s2-ln-stres" x1="726" y1="450" x2="840" y2="450" stroke="#ff2e88" stroke-width="5" stroke-dasharray="114" stroke-dashoffset="114" />
+              <text id="s2-tag-stres" class="tag" x="852" y="464" opacity="0">STRESS</text>
+              <line id="s2-ln-kir" x1="438" y1="450" x2="240" y2="450" stroke="#ff2e88" stroke-width="5" stroke-dasharray="198" stroke-dashoffset="198" />
+              <text id="s2-tag-kir" class="tag" x="228" y="463" text-anchor="end" opacity="0" style="font-size: 36px">SCHMUTZ</text>
+            </g>
+          </svg>
+          <div id="s2-num" class="center big num">02</div>
+        </div>
+      </div>
+
+      <!-- S3: Grönland balinası 200+ yıl -->
+      <div id="s3" class="clip scene" data-start="31.34" data-duration="9.86" data-track-index="1" data-track-kind="graphics" style="z-index: 2">
+        <div id="s3-in" class="stage">
+          <svg id="s3-whale" viewBox="0 0 600 220"><use href="#w-gronland" width="600" height="220" /></svg>
+          <div id="s3-year" class="center big">1826</div>
+          <div id="s3-200g">
+            <div id="s3-200" class="center big pink">200+</div>
+            <div id="s3-yil" class="center label">JAHRE</div>
+          </div>
+          <div id="s3-tl">
+            <div id="s3-line"></div>
+            <div id="s3-line-p"></div>
+            <div id="s3-dl" class="tl-dot"></div>
+            <div id="s3-dr" class="tl-dot"></div>
+            <div id="s3-ll" class="tl-lbl">1800ER</div>
+            <div id="s3-lr" class="tl-lbl">HEUTE</div>
+            <svg id="s3-mini" viewBox="0 0 600 220"><use href="#w-gronland" width="600" height="220" /></svg>
+          </div>
+          <div id="s3-num" class="center big num">03</div>
+        </div>
+      </div>
+
+      <!-- S4: Kambur balina şarkıları -->
+      <div id="s4" class="clip scene" data-start="41.2" data-duration="10.4" data-track-index="1" data-track-kind="graphics" style="z-index: 2">
+        <div id="s4-in" class="stage">
+          <div id="s4-a">
+            <svg id="s4-whale" viewBox="0 0 600 240"><use href="#w-kambur" width="600" height="240" transform="translate(600 0) scale(-1 1)" /></svg>
+            <div id="s4-waves">
+              <svg id="wv1" class="wave" viewBox="0 0 400 260"><path d="M20,70 Q70,130 20,190" stroke="#ff2e88" stroke-width="10" fill="none" stroke-linecap="round" /></svg>
+              <svg id="wv2" class="wave" viewBox="0 0 400 260"><path d="M20,70 Q70,130 20,190" stroke="#ff2e88" stroke-width="10" fill="none" stroke-linecap="round" /></svg>
+              <svg id="wv3" class="wave" viewBox="0 0 400 260"><path d="M20,70 Q70,130 20,190" stroke="#ff2e88" stroke-width="10" fill="none" stroke-linecap="round" /></svg>
+            </div>
+            <div id="s4-eq">
+              <div class="bar" style="left: 13px"></div>
+              <div class="bar" style="left: 83px"></div>
+              <div class="bar" style="left: 153px"></div>
+              <div class="bar" style="left: 223px"></div>
+              <div class="bar" style="left: 293px"></div>
+              <div class="bar" style="left: 363px"></div>
+              <div class="bar" style="left: 433px"></div>
+              <div class="bar" style="left: 503px"></div>
+              <div class="bar" style="left: 573px"></div>
+              <div class="bar" style="left: 643px"></div>
+            </div>
+          </div>
+          <div id="s4-map">
+            <svg viewBox="0 0 1080 900">
+              <path d="M-20,520 C40,470 120,450 180,470 C230,486 260,520 262,570 C264,620 230,660 180,672 C140,682 120,660 80,668 C40,676 0,660 -20,640 Z" fill="rgba(255,255,255,0.14)" />
+              <path d="M1010,180 C1050,170 1100,190 1100,240 L1100,820 C1080,840 1060,800 1050,760 C1030,700 1020,620 1000,560 C985,500 960,440 975,380 C985,330 990,260 1010,180 Z" fill="rgba(255,255,255,0.14)" />
+              <circle cx="520" cy="410" r="5" fill="rgba(255,255,255,0.4)" />
+              <circle cx="560" cy="402" r="4" fill="rgba(255,255,255,0.4)" />
+              <circle cx="575" cy="440" r="6" fill="rgba(255,255,255,0.4)" />
+              <circle cx="505" cy="452" r="4" fill="rgba(255,255,255,0.4)" />
+              <circle cx="595" cy="420" r="3" fill="rgba(255,255,255,0.4)" />
+              <line x1="190" y1="560" x2="540" y2="430" stroke="rgba(255,255,255,0.4)" stroke-width="4" stroke-dasharray="10 12" />
+              <line x1="540" y1="430" x2="995" y2="330" stroke="rgba(255,255,255,0.4)" stroke-width="4" stroke-dasharray="10 12" />
+              <line id="s4-r1" x1="190" y1="560" x2="540" y2="430" stroke="#ff2e88" stroke-width="6" stroke-linecap="round" stroke-dasharray="373.4" stroke-dashoffset="373.4" />
+              <line id="s4-r2" x1="540" y1="430" x2="995" y2="330" stroke="#ff2e88" stroke-width="6" stroke-linecap="round" stroke-dasharray="465.9" stroke-dashoffset="465.9" />
+              <circle id="s4-pa" cx="190" cy="560" r="16" fill="#ffffff" />
+              <circle id="s4-pb" cx="540" cy="430" r="16" fill="#ffffff" />
+              <circle id="s4-pc" cx="995" cy="330" r="16" fill="#ffffff" />
+              <text id="s4-la" class="maplbl" x="190" y="620" text-anchor="middle" opacity="0">AUSTRALIEN</text>
+              <text id="s4-lb" class="maplbl" x="540" y="375" text-anchor="middle" opacity="0"><tspan x="540" dy="-38">FRANZÖSISCH-</tspan><tspan x="540" dy="38">POLYNESIEN</tspan></text>
+              <text id="s4-lc" class="maplbl" x="1010" y="290" text-anchor="end" opacity="0">ECUADOR</text>
+            </svg>
+            <div id="s4-pulse"><i id="s4-pr1" class="pr"></i><i id="s4-pr2" class="pr"></i><i id="s4-pd"></i></div>
+          </div>
+          <div id="s4-num" class="center big num">04</div>
+        </div>
+      </div>
+
+      <!-- S5: Kapanış -->
+      <div id="s5" class="clip scene" data-start="51.6" data-duration="4.2" data-track-index="1" data-track-kind="graphics" style="z-index: 2">
+        <div id="s5-in" class="stage">
+          <div id="c1" class="card"><b>01</b><span>Aufrecht</span></div>
+          <div id="c2" class="card"><b>02</b><span>Ohrenschmalz</span></div>
+          <div id="c3" class="card"><b>03</b><span>200+&nbsp;Jahre</span></div>
+          <div id="c4" class="card"><b>04</b><span>Hit-Lieder</span></div>
+          <div id="s5-q" class="center big">WELCHE DAVON<br />WUSSTEST DU?</div>
+          <div id="s5-pill">
+            <svg viewBox="0 0 64 60"><path d="M8,6 H56 A4,4 0 0 1 60,10 V38 A4,4 0 0 1 56,42 H26 L12,54 V42 H8 A4,4 0 0 1 4,38 V10 A4,4 0 0 1 8,6 Z" fill="none" stroke="#0a1a2f" stroke-width="5" stroke-linejoin="round" /></svg>
+            IN DIE KOMMENTARE
+          </div>
+        </div>
+      </div>
+
+      <!-- Altyazılar -->
+      <div id="caps" class="clip" data-start="0" data-duration="55.8" data-track-index="2" data-track-kind="captions" style="z-index: 5">
+        <div id="g1" class="cap"><span id="g1-h1">Vier</span> Dinge über Wale,</div>
+        <div id="g2" class="cap">von denen du wahrscheinlich</div>
+        <div id="g3" class="cap">noch <span id="g3-h1">nie</span> gehört hast.</div>
+        <div id="g4" class="cap">Erstens: Pottwale schlafen <span id="g4-h1">aufrecht.</span></div>
+        <div id="g5" class="cap">Direkt unter der Wasser&shy;oberfläche</div>
+        <div id="g6" class="cap">machen sie kurze Nickerchen</div>
+        <div id="g7" class="cap">von <span id="g7-h1">10–15&nbsp;Minuten.</span></div>
+        <div id="g8" class="cap">Und verschlafen nur</div>
+        <div id="g9" class="cap"><span id="g9-h1">7&nbsp;%</span> des Tages.</div>
+        <div id="g10" class="cap">Zweitens: Das Alter</div>
+        <div id="g11" class="cap">eines Wals kannst du</div>
+        <div id="g12" class="cap">an seinem <span id="g12-h1">Ohren&shy;schmalz</span> ablesen.</div>
+        <div id="g13" class="cap">Das Ohrenschmalz lagert sich</div>
+        <div id="g14" class="cap">Schicht für Schicht ab,</div>
+        <div id="g15" class="cap">wie die <span id="g15-h1">Jahres&shy;ringe</span></div>
+        <div id="g16" class="cap">eines Baumes.</div>
+        <div id="g17" class="cap">Und es speichert sogar,</div>
+        <div id="g18" class="cap">wie viel <span id="g18-h1">Stress</span></div>
+        <div id="g19" class="cap">der Wal hatte –</div>
+        <div id="g20" class="cap">und welcher <span id="g20-h1">Verschmutzung</span></div>
+        <div id="g21" class="cap">er ausgesetzt war.</div>
+        <div id="g22" class="cap">Drittens: <span id="g22-h1">Grönland&shy;wale</span></div>
+        <div id="g23" class="cap">können über <span id="g23-h1">200</span>&nbsp;Jahre</div>
+        <div id="g24" class="cap">alt werden.</div>
+        <div id="g25" class="cap">Manche, die heute</div>
+        <div id="g26" class="cap">durch den Ozean schwimmen,</div>
+        <div id="g27" class="cap">könnten also schon</div>
+        <div id="g28" class="cap">in den <span id="g28-h1">1800er-Jahren</span></div>
+        <div id="g29" class="cap">geboren sein.</div>
+        <div id="g30" class="cap">Viertens: Die Lieder</div>
+        <div id="g31" class="cap">der <span id="g31-h1">Buckel&shy;wale</span></div>
+        <div id="g32" class="cap">verbreiten sich wie <span id="g32-h1">Hits.</span></div>
+        <div id="g33" class="cap">Ein neues Lied</div>
+        <div id="g34" class="cap">aus <span id="g34-h1">Australien</span></div>
+        <div id="g35" class="cap">zieht über den Ozean</div>
+        <div id="g36" class="cap">bis nach <span id="g36-h1" style="white-space: nowrap">Französisch-Polynesien</span></div>
+        <div id="g37" class="cap">und von dort</div>
+        <div id="g38" class="cap">bis nach <span id="g38-h1">Ecuador.</span></div>
+      </div>
+
+      <!-- Ses: almanca/ses/balina.mp3 (ElevenLabs, Ben), -14 LUFS, 0.2 sn sonra başlar -->
+      <audio id="ses" class="clip" src="assets/ses.wav" data-start="0.2" data-duration="54.47" data-track-index="10" data-volume="1"></audio>
+    </div>
+
+    <script>
+      // Almanca versiyon. Tüm zamanlar almanca/cikti/transkript/balina/balina.json kelime zamanlarından.
+      // Timeline saniyesi = Almanca sesteki zaman + 0.2
+      const O = 0.2;
+      const T = (t) => t + O;
+      const D = 55.8;
+      const tl = gsap.timeline({ paused: true });
+      const IN = "power3.out";
+      const OUT = "power2.in";
+      const $ = (s) => document.querySelector(s);
+
+      function bob(sel, start, end, prop, amp, period) {
+        let t = start, k = 0;
+        while (t < end) {
+          const d = Math.min(period / 2, end - t);
+          tl.to(sel, { [prop]: k % 2 === 0 ? -amp : amp, duration: d, ease: "sine.inOut" }, t);
+          t += d; k++;
+        }
+      }
+      function badge(sel, t0, t1) {
+        tl.fromTo(sel, { opacity: 0, scale: 1.4, y: 0 }, { opacity: 1, scale: 1, duration: 0.25, ease: IN }, t0);
+        tl.to(sel, { y: -385, scale: 0.3, duration: 0.35, ease: "power3.inOut" }, t1);
+      }
+
+      // ---------- Zemin ----------
+      tl.fromTo("#bg-progress", { scaleX: 0 }, { scaleX: 1, duration: D, ease: "none" }, 0);
+      [["#ray1", 8, 9], ["#ray2", -6, 12], ["#ray3", 5, 10]].forEach(([r, a, p]) => {
+        tl.fromTo(r, { rotation: a }, { rotation: -a, duration: p, ease: "sine.inOut" }, 0);
+        let t = p, s = -a;
+        while (t < D) { const d = Math.min(p, D - t); s = -s; tl.to(r, { rotation: s, duration: d, ease: "sine.inOut" }, t); t += d; }
+      });
+      document.querySelectorAll(".bub").forEach((b, i) => {
+        const dur = +b.dataset.dur, s = +b.dataset.s, y0 = 2000, y1 = -100;
+        const sw = (i % 2 ? 1 : -1) * (10 + (i % 3) * 8);
+        if (s >= D) return;
+        if (s >= 0) {
+          tl.fromTo(b, { y: y0, x: 0 }, { y: y1, x: sw, duration: Math.min(dur, D - s), ease: "none" }, s);
+        } else {
+          const f = -s / dur;
+          if (f >= 1) return;
+          tl.fromTo(b, { y: y0 + (y1 - y0) * f, x: sw * f }, { y: y1, x: sw, duration: dur * (1 - f), ease: "none" }, 0);
+        }
+      });
+
+      // ---------- S0 Giriş (0 – 4.4) | "Vier Dinge über Wale ... gehört hast." ----------
+      tl.fromTo("#s0-four", { scale: 0.7, opacity: 0.35, y: 120 }, { scale: 1, opacity: 1, y: 0, color: "#ff2e88", duration: 0.3, ease: "back.out(2)" }, T(0.0));
+      tl.to("#s0-four", { scale: 1.05, duration: 3.9, ease: "none" }, T(0.3));
+      tl.fromTo("#s0-top", { opacity: 1, y: 0 }, { y: -10, duration: 4.4, ease: "none" }, 0);
+      tl.fromTo("#s0-sub", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.25, ease: IN }, T(2.62)); // noch nie
+      tl.fromTo("#s0-whale", { x: 1100 }, { x: -650, duration: 4.4, ease: "none" }, 0);
+
+      // ---------- S1 Pottwal (4.4 – 15.7) ----------
+      badge("#s1-num", 4.4, T(5.24));                                         // Erstens → Pottwale
+      ["#kw1", "#kw2", "#kw3", "#kw4", "#kw5"].forEach((w, i) => {
+        tl.fromTo(w, { y: 140, opacity: 0 }, { y: 0, opacity: 0.92, duration: 0.6, ease: IN }, T(5.24) + i * 0.08);
+        bob(`${w} .kw-in`, T(5.84) + i * 0.15, 15.7, "y", 10 + (i % 2) * 6, 2.2 + (i % 3) * 0.3);
+      });
+      tl.to("#s1-wave", { attr: { "stroke-dashoffset": 0 }, duration: 0.5, ease: IN }, T(7.98));    // unter der
+      tl.fromTo("#s1-surf-label", { opacity: 0 }, { opacity: 1, duration: 0.25, ease: IN }, T(8.4)); // Wasseroberfläche
+      tl.to("#s1-pod", { y: -50, duration: 0.6, ease: "power2.inOut" }, T(7.98));
+      tl.fromTo("#s1-surface", { x: 0 }, { x: -90, duration: 7.5, ease: "none" }, T(7.98));
+      // 10–15 Minuten
+      tl.to("#s1-pod", { opacity: 0.15, duration: 0.25, ease: OUT }, T(10.6));
+      tl.fromTo("#s1-nap", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.3, ease: IN }, T(10.6));
+      tl.to("#s1-nap", { scale: 1.06, duration: 1.6, ease: "none" }, T(10.9));
+      // 7 % des Tages
+      tl.to("#s1-nap", { opacity: 0, duration: 0.2, ease: OUT }, T(12.4));                        // verschlafen
+      tl.to("#s1-pod", { opacity: 0.12, duration: 0.3, ease: OUT }, T(12.6));
+      tl.fromTo("#s1-day", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.3, ease: IN }, T(12.6));
+      tl.to("#s1-arc", { attr: { "stroke-dashoffset": 1445.13 * 0.93 }, duration: 0.8, ease: "power2.out" }, T(13.5)); // 7
+      const p7 = { v: 0 };
+      tl.fromTo(p7, { v: 0 }, { v: 7, duration: 0.8, ease: "power2.out", onUpdate: () => { $("#s1-pct").textContent = Math.round(p7.v) + " %"; } }, T(13.5));
+      tl.to("#s1-day", { scale: 1.05, duration: 1.6, ease: "none" }, T(14.3));
+
+      // ---------- S2 Ohrenschmalz (15.7 – 31.34) ----------
+      badge("#s2-num", 15.7, T(16.54));                                       // Zweitens → das Alter
+      tl.fromTo("#s2-whale", { x: 700, opacity: 0 }, { x: 0, opacity: 1, duration: 0.55, ease: IN }, T(16.54));
+      tl.to("#s2-whale", { y: -12, duration: 1.5, ease: "sine.inOut" }, T(17.1));
+      tl.fromTo("#s2-ear", { attr: { r: 0 } }, { attr: { r: 9 }, duration: 0.25, ease: "back.out(3)" }, T(18.78)); // Ohrenschmalz
+      [T(18.82), T(19.32)].forEach((t) => {
+        tl.fromTo("#s2-ear-ring", { attr: { r: 9 }, opacity: 1 }, { attr: { r: 34 }, opacity: 0, duration: 0.5, ease: "power2.out" }, t);
+      });
+      tl.to("#s2-whale", { scale: 4, opacity: 0, transformOrigin: "210px 147px", duration: 0.5, ease: "power3.in" }, T(20.0));
+      // Schicht für Schicht
+      tl.fromTo("#s2-rings", { opacity: 0 }, { opacity: 1, duration: 0.01 }, T(20.5));
+      document.querySelectorAll(".ring").forEach((r, i) => {
+        const t0 = T(21.68) + i * 0.38;                                       // lagert sich ... Jahresringe
+        tl.to(r, { attr: { "stroke-dashoffset": 0 }, duration: 0.45, ease: "power2.out" }, t0);
+        tl.fromTo(`#rl${i + 1}`, { opacity: 0 }, { opacity: 1, duration: 0.2, ease: IN }, t0 + 0.3);
+      });
+      tl.fromTo("#s2-rg", { scale: 1 }, { scale: 1.05, svgOrigin: "540 450", duration: 10.6, ease: "none" }, T(20.5));
+      // Stress
+      tl.to("#ring4", { attr: { stroke: "#ff2e88" }, duration: 0.2, ease: "none" }, T(27.38));
+      tl.to("#s2-ln-stres", { attr: { "stroke-dashoffset": 0 }, duration: 0.25, ease: IN }, T(27.38));
+      tl.fromTo("#s2-tag-stres", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: IN }, T(27.56));
+      // Verschmutzung
+      tl.to("#ring2", { attr: { stroke: "#ff2e88" }, duration: 0.2, ease: "none" }, T(29.26));
+      tl.to("#s2-ln-kir", { attr: { "stroke-dashoffset": 0 }, duration: 0.25, ease: IN }, T(29.26));
+      tl.fromTo("#s2-tag-kir", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: IN }, T(29.44));
+
+      // ---------- S3 Grönlandwal (31.34 – 41.2) ----------
+      badge("#s3-num", 31.34, T(32.24));                                      // Drittens → Grönlandwale
+      tl.fromTo("#s3-whale", { x: -900, opacity: 1 }, { x: 0, duration: 0.7, ease: IN }, T(32.24));
+      tl.to("#s3-whale", { x: 40, duration: 2.6, ease: "none" }, T(32.94));
+      const yr = { v: 1826 };
+      tl.fromTo("#s3-year", { opacity: 0 }, { opacity: 1, duration: 0.15 }, T(32.6));
+      tl.fromTo(yr, { v: 1826 }, { v: 2026, duration: 0.94, ease: "power1.in", onUpdate: () => { $("#s3-year").textContent = String(Math.round(yr.v)); } }, T(32.6));
+      tl.set("#s3-year", { opacity: 0 }, T(33.54));
+      tl.fromTo("#s3-200g", { opacity: 0, scale: 1.4 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, T(33.54)); // 200
+      tl.to("#s3-200g", { scale: 1.05, duration: 1.6, ease: "none" }, T(33.9));
+      // heute ↔ 1800er
+      tl.to("#s3-whale", { opacity: 0, y: -40, duration: 0.3, ease: OUT }, T(35.4));
+      tl.to("#s3-num", { opacity: 0, duration: 0.2, ease: OUT }, T(35.4));
+      tl.to("#s3-200g", { y: -390, scale: 0.55, duration: 0.4, ease: "power3.inOut" }, T(35.4));
+      tl.fromTo("#s3-tl", { opacity: 0 }, { opacity: 1, duration: 0.2 }, T(35.6));
+      tl.fromTo("#s3-line", { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: IN }, T(35.6));
+      tl.fromTo("#s3-lr", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.25, ease: IN }, T(35.9)); // heute
+      tl.fromTo("#s3-ll", { opacity: 0 }, { opacity: 0.5, duration: 0.25, ease: IN }, T(36.2));
+      tl.fromTo("#s3-mini", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.25, ease: IN }, T(36.6)); // Ozean
+      tl.to("#s3-mini", { x: -800, duration: 0.9, ease: "power2.inOut" }, T(38.1));
+      tl.fromTo("#s3-line-p", { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power2.inOut" }, T(38.1));
+      tl.to("#s3-dl", { backgroundColor: "#ff2e88", scale: 1.3, duration: 0.2, ease: IN }, T(39.0));   // 1800er
+      tl.to("#s3-ll", { opacity: 1, color: "#ff2e88", scale: 1.15, duration: 0.25, ease: IN }, T(39.0));
+      tl.fromTo("#s3-in", { scale: 1 }, { scale: 1.04, duration: 5.4, ease: "none" }, T(35.6));
+
+      // ---------- S4 Buckelwal (41.2 – 51.6) ----------
+      badge("#s4-num", 41.2, T(42.08));                                       // Viertens → die Lieder
+      tl.fromTo("#s4-whale", { x: -500, opacity: 0 }, { x: 0, opacity: 1, duration: 0.6, ease: IN }, T(42.08));
+      bob("#s4-whale", T(42.7), T(44.6), "y", 10, 2);
+      ["#wv1", "#wv2", "#wv3"].forEach((w, i) => {
+        for (let t = T(42.2) + i * 0.25; t < T(44.6); t += 0.75) {
+          tl.fromTo(w, { scale: 0.4, opacity: 1 }, { scale: 1.8, opacity: 0, duration: 0.7, ease: "power1.out" }, t);
+        }
+      });
+      // Hits: Equalizer
+      document.querySelectorAll(".bar").forEach((b, i) => {
+        const h = [0.35, 0.8, 0.55, 1, 0.6, 0.9, 0.4, 0.75, 0.5, 0.85];
+        let t = T(43.16) + i * 0.03, k = 0;                                  // verbreiten sich wie Hits
+        tl.fromTo(b, { scaleY: 0.05, opacity: 0 }, { scaleY: h[i], opacity: 1, duration: 0.2, ease: IN }, t);
+        t += 0.2;
+        while (t < T(44.84)) {
+          tl.to(b, { scaleY: h[(i + k * 3 + 2) % 10], duration: 0.18, ease: "sine.inOut" }, t);
+          t += 0.18; k++;
+        }
+      });
+      // Karte (Themenwechsel: Schieben)
+      tl.to("#s4-a", { x: -1080, duration: 0.3, ease: "power3.in" }, T(44.58));
+      tl.set("#s4-map", { opacity: 1 }, T(44.84));
+      tl.fromTo("#s4-map", { x: 1080 }, { x: 0, duration: 0.35, ease: IN }, T(44.84));
+      tl.to("#s4-pa", { attr: { fill: "#ff2e88", r: 20 }, duration: 0.2, ease: IN }, T(45.72));     // Australien
+      tl.fromTo("#s4-la", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: IN }, T(45.72));
+      tl.fromTo("#s4-pulse", { opacity: 0 }, { opacity: 1, duration: 0.2 }, T(45.9));
+      for (let t = T(45.9), k = 0; t < 51.5; t += 0.45, k++) {
+        tl.fromTo(k % 2 ? "#s4-pr2" : "#s4-pr1", { scale: 1, opacity: 0.9 }, { scale: 2.8, opacity: 0, duration: 0.85, ease: "power1.out" }, t);
+      }
+      tl.to("#s4-pulse", { x: 350, y: -130, duration: 1.6, ease: "power1.inOut" }, T(46.4));     // zieht über den Ozean
+      tl.to("#s4-r1", { attr: { "stroke-dashoffset": 0 }, duration: 1.6, ease: "power1.inOut" }, T(46.4));
+      tl.fromTo("#s4-lb", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: IN }, T(47.98));        // Französisch-Polynesien
+      tl.to("#s4-pb", { attr: { fill: "#ff2e88", r: 20 }, duration: 0.2, ease: IN }, T(48.0));
+      tl.to("#s4-pulse", { x: 805, y: -230, duration: 0.8, ease: "power1.inOut" }, T(49.78));    // von dort bis nach
+      tl.to("#s4-r2", { attr: { "stroke-dashoffset": 0 }, duration: 0.8, ease: "power1.inOut" }, T(49.78));
+      tl.to("#s4-pc", { attr: { fill: "#ff2e88", r: 20 }, duration: 0.2, ease: IN }, T(50.56));     // Ecuador
+      tl.fromTo("#s4-lc", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: IN }, T(50.56));
+      ["#s4-pa", "#s4-pb", "#s4-pc"].forEach((p, i) => {
+        tl.to(p, { attr: { r: 28 }, duration: 0.15, ease: IN }, T(50.9) + i * 0.1);
+        tl.to(p, { attr: { r: 20 }, duration: 0.25, ease: "power2.out" }, T(51.05) + i * 0.1);
+      });
+      tl.fromTo("#s4-map", { scale: 1 }, { scale: 1.05, duration: 5.6, ease: "none" }, T(45.9));
+
+      // ---------- S5 Abschluss (51.6 – 55.8) ----------
+      tl.fromTo("#s5-in", { scale: 1.2, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: IN }, 51.6);
+      ["#c1", "#c2", "#c3", "#c4"].forEach((c, i) => {
+        tl.fromTo(c, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.25, ease: IN }, 51.65 + i * 0.08);
+        tl.to(c, { borderColor: "#ff2e88", duration: 0.12, ease: "none" }, T(51.9) + i * 0.25);
+        tl.to(c, { borderColor: "rgba(255,255,255,0.3)", duration: 0.2, ease: "none" }, T(51.9) + i * 0.25 + 0.3);
+      });
+      tl.fromTo("#s5-q", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.3, ease: IN }, T(51.64)); // Welche davon
+      tl.fromTo("#s5-pill", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, T(53.2)); // Schreib's
+      [54.5, 55.2].forEach((t) => {
+        tl.to("#s5-pill", { scale: 1.06, duration: 0.15, ease: IN }, t);
+        tl.to("#s5-pill", { scale: 1, duration: 0.3, ease: "power2.out" }, t + 0.15);
+      });
+      tl.fromTo("#s5-q", { scale: 1 }, { scale: 1.04, duration: 3.6, ease: "none" }, 52.2);
+
+      // ---------- Altyazılar (ses zamanı; en fazla 4 kelime) ----------
+      const caps = [
+        ["#g1", 0.0, 1.56, [["#g1-h1", 0.0]]],
+        ["#g2", 1.56, 2.62, []],
+        ["#g3", 2.62, 4.2, [["#g3-h1", 2.88]]],
+        ["#g4", 4.4, 7.7, [["#g4-h1", 6.64]]],
+        ["#g5", 7.7, 9.18, []],
+        ["#g6", 9.18, 10.46, []],
+        ["#g7", 10.46, 12.1, [["#g7-h1", 10.72]]],
+        ["#g8", 12.1, 13.5, []],
+        ["#g9", 13.5, 15.5, [["#g9-h1", 13.5]]],
+        ["#g10", 15.74, 17.08, []],
+        ["#g11", 17.08, 18.38, []],
+        ["#g12", 18.38, 20.66, [["#g12-h1", 18.78]]],
+        ["#g13", 20.66, 22.26, []],
+        ["#g14", 22.26, 23.74, []],
+        ["#g15", 23.74, 24.56, [["#g15-h1", 24.12]]],
+        ["#g16", 24.56, 25.36, []],
+        ["#g17", 25.36, 26.98, []],
+        ["#g18", 26.98, 27.66, [["#g18-h1", 27.38]]],
+        ["#g19", 27.66, 28.42, []],
+        ["#g20", 28.42, 29.88, [["#g20-h1", 29.26]]],
+        ["#g21", 29.88, 31.14, []],
+        ["#g22", 31.34, 32.88, [["#g22-h1", 32.24]]],
+        ["#g23", 32.88, 34.36, [["#g23-h1", 33.54]]],
+        ["#g24", 34.36, 35.54, []],
+        ["#g25", 35.54, 36.16, []],
+        ["#g26", 36.16, 37.84, []],
+        ["#g27", 37.84, 38.5, []],
+        ["#g28", 38.5, 40.16, [["#g28-h1", 39.0]]],
+        ["#g29", 40.16, 41.0, []],
+        ["#g30", 41.18, 42.4, []],
+        ["#g31", 42.4, 43.16, [["#g31-h1", 42.64]]],
+        ["#g32", 43.16, 44.82, [["#g32-h1", 43.98]]],
+        ["#g33", 44.82, 45.5, []],
+        ["#g34", 45.5, 46.4, [["#g34-h1", 45.72]]],
+        ["#g35", 46.4, 47.6, []],
+        ["#g36", 47.6, 49.34, [["#g36-h1", 47.98]]],
+        ["#g37", 49.34, 50.22, []],
+        ["#g38", 50.22, 51.4, [["#g38-h1", 50.56]]]
+      ];
+      caps.forEach(([id, s0, e0, hl]) => {
+        const s = T(s0), e = T(e0);
+        tl.set(id, { visibility: "visible" }, s);
+        tl.fromTo(id, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.25, ease: IN }, s);
+        hl.forEach(([h, t]) => tl.fromTo(h, { color: "#ffffff" }, { color: "#ff2e88", duration: 0.12, ease: "none" }, T(t)));
+        tl.to(id, { opacity: 0, duration: 0.2, ease: OUT }, e - 0.2);
+        tl.set(id, { opacity: 0, visibility: "hidden" }, e);
+      });
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

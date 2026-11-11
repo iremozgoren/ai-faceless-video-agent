@@ -1,0 +1,31 @@
+# Gizli anahtarlar
+.env
+
+# macOS
+.DS_Store
+
+# Yerel Claude Code ayarları
+.claude/settings.local.json
+
+# Ham kayıtlar ve çıktılar (boş klasör için .gitkeep kalır)
+ham/*
+!ham/.gitkeep
+cikti/*
+!cikti/.gitkeep
+almanca/ses/*
+!almanca/ses/.gitkeep
+almanca/cikti/*
+!almanca/cikti/.gitkeep
+
+# Ses ve video dosyaları
+*.mp4
+*.mov
+*.mp3
+*.m4a
+*.wav
+
+# Node
+node_modules/
+
+# HyperFrames render/snapshot önbelleği
+.hyperframes/

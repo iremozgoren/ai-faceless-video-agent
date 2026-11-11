@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Inter Kurgu";
+        src: url("assets/fonts/Inter-SemiBold.ttf") format("truetype");
+        font-weight: 600;
+      }
+      @font-face {
+        font-family: "Inter Kurgu";
+        src: url("assets/fonts/Inter-Bold.ttf") format("truetype");
+        font-weight: 700;
+      }
+      /* Seri: timsah/balina ile aynı yapı. 3 renk: zemin (sonbahar kahvesi; silüet bu zeminin açık tonu), beyaz yazı, neon pembe vurgu.
+         İstisna (kural-dosyasi.md): yalnızca UV sahnesinde mor ışık + lavanta parlama. */
+      :root {
+        --zemin-ust: #2a1a0e;
+        --zemin-alt: #0d0704;
+        --kurk: #c98d55;
+        --yazi: #ffffff;
+        --vurgu: #ff2e88;
+        --uv: #7b2cff;
+        --lavanta: #c9a7ff;
+        --font: "Inter Kurgu", sans-serif;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { hyphens: manual; -webkit-hyphens: manual; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--zemin-alt); }
+      #root {
+        position: relative;
+        width: 1080px; height: 1920px;
+        overflow: hidden;
+        font-family: var(--font);
+        color: var(--yazi);
+        background: var(--zemin-alt);
+      }
+
+      /* ---------- Zemin ---------- */
+      #bg { position: absolute; inset: 0; }
+      #bg-grad { position: absolute; inset: 0; background: linear-gradient(180deg, var(--zemin-ust) 0%, var(--zemin-alt) 100%); }
+      .ray {
+        position: absolute;
+        top: -300px;
+        width: 160px; height: 1500px;
+        background: linear-gradient(180deg, rgba(255, 220, 180, 0.08) 0%, rgba(255, 220, 180, 0) 100%);
+        transform-origin: 50% 0;
+      }
+      #ray1 { left: 180px; }
+      #ray2 { left: 520px; width: 240px; }
+      #ray3 { left: 840px; width: 120px; }
+      .leaf { position: absolute; top: 0; width: 34px; height: 22px; }
+      #bg-progress {
+        position: absolute;
+        left: 0; top: 0;
+        width: 1080px; height: 8px;
+        background: var(--vurgu);
+        transform-origin: 0 50%;
+      }
+
+      /* ---------- Sahne ortak ---------- */
+      .scene { position: absolute; inset: 0; }
+      .stage { position: absolute; left: 0; top: 200px; width: 1080px; height: 900px; }
+      .center { position: absolute; left: 0; width: 1080px; text-align: center; }
+      .big { font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; }
+      .pink { color: var(--vurgu); }
+      .label { font-size: 44px; font-weight: 600; letter-spacing: 0.18em; color: rgba(255, 255, 255, 0.75); }
+      .num { top: 300px; font-size: 300px; color: var(--vurgu); opacity: 0; }
+      svg { overflow: visible; }
+      .weasel { color: var(--kurk); }
+
+      /* S0 */
+      #s0-top { top: 120px; }
+      #s0-four { top: 160px; font-size: 640px; line-height: 1; }
+      #s0-sub { top: 830px; opacity: 0; }
+      #s0-run { position: absolute; left: 0; top: 700px; width: 280px; height: 103px; }
+
+      /* S1 */
+      #s1-w { position: absolute; left: 190px; top: 130px; width: 700px; height: 257px; transform-origin: 50% 100%; }
+      #s1-et { top: 420px; font-size: 92px; opacity: 0; }
+      #s1-box { position: absolute; left: 700px; top: 240px; width: 150px; height: 100px; opacity: 0; }
+      #s1-g { top: 470px; font-size: 220px; opacity: 0; }
+
+      /* S2 */
+      #s2-wrap { position: absolute; left: 160px; top: 180px; width: 760px; height: 279px; }
+      #s2-wrap > svg { position: absolute; inset: 0; width: 760px; height: 279px; }
+      #s2-meter { opacity: 0; }
+      .speed { position: absolute; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.6); transform-origin: 100% 50%; opacity: 0; }
+      #s2-heart { position: absolute; left: 0; top: 0; width: 70px; height: 70px; }
+      #s2-heart i { position: absolute; inset: 0; border: 5px solid var(--vurgu); border-radius: 50%; opacity: 0; }
+      #s2-day { top: 520px; opacity: 0; }
+      .tick { font-size: 52px; font-weight: 700; fill: #ffffff; text-anchor: middle; }
+
+      /* S3 */
+      #s3-w { position: absolute; left: 300px; top: 340px; width: 480px; height: 176px; }
+      #s3-w svg { position: absolute; inset: 0; width: 480px; height: 176px; }
+      #s3-title { top: 610px; font-size: 110px; opacity: 0; }
+      #s3-mouse { position: absolute; left: 760px; top: 400px; width: 200px; height: 120px; opacity: 0; }
+      #s3-q { top: 540px; font-size: 300px; opacity: 0; }
+      #s3-not { top: 860px; opacity: 0; }
+
+      /* S4 */
+      #s4-dark { position: absolute; inset: 0; background: #000000; opacity: 0; }
+      #s4-w { position: absolute; left: 140px; top: 300px; width: 800px; height: 294px; }
+      #s4-lamp { position: absolute; left: 470px; top: -40px; width: 140px; height: 60px; border-radius: 14px; background: var(--uv); opacity: 0; }
+      #s4-beam {
+        position: absolute; left: 140px; top: 20px; width: 800px; height: 700px;
+        background: linear-gradient(180deg, rgba(123, 44, 255, 0.55) 0%, rgba(123, 44, 255, 0.12) 100%);
+        clip-path: polygon(41% 0, 59% 0, 100% 100%, 0 100%);
+        opacity: 0; transform-origin: 50% 0;
+      }
+      #s4-uv { top: 720px; opacity: 0; }
+
+      /* S5 */
+      .card {
+        position: absolute;
+        width: 440px; height: 180px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-radius: 28px;
+        background: rgba(255, 255, 255, 0.05);
+        opacity: 0;
+      }
+      .card b { position: absolute; left: 34px; top: 52px; font-size: 64px; font-weight: 700; color: var(--vurgu); line-height: 1; }
+      .card span { position: absolute; left: 140px; top: 66px; font-size: 38px; font-weight: 600; line-height: 1.2; white-space: nowrap; }
+      #c1 { left: 85px; top: 30px; }
+      #c2 { left: 555px; top: 30px; }
+      #c3 { left: 85px; top: 240px; }
+      #c4 { left: 555px; top: 240px; }
+      #s5-q { top: 480px; font-size: 104px; opacity: 0; }
+      #s5-pill {
+        position: absolute;
+        left: 130px; top: 760px;
+        width: 820px; height: 124px;
+        border-radius: 62px;
+        background: var(--vurgu);
+        color: #2a1a0e;
+        font-size: 54px; font-weight: 700;
+        line-height: 124px;
+        text-align: center;
+        padding-left: 70px;
+        opacity: 0;
+      }
+      #s5-pill svg { position: absolute; left: 64px; top: 32px; width: 64px; height: 60px; }
+
+      /* ---------- Altyazı ---------- */
+      #caps { position: absolute; inset: 0; }
+      .cap {
+        position: absolute;
+        left: 0; width: 1080px;
+        bottom: 620px;
+        padding: 0 90px;
+        text-align: center;
+        font-size: 64px; font-weight: 600;
+        line-height: 1.15;
+        opacity: 0;
+        visibility: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Silüetler (elle çizilmiş SVG) -->
+    <svg width="0" height="0" style="position: absolute">
+      <defs>
+        <!-- gelincik, yandan, burun sağda; renk: currentColor -->
+        <symbol id="g-shape" viewBox="0 0 600 220">
+          <path fill="currentColor" d="M30,118 C50,108 70,104 90,106 C140,92 200,84 280,86 C360,88 420,86 460,80 C480,66 510,56 535,60 L545,50 C550,46 556,50 555,58 C570,64 584,74 590,86 C594,92 588,98 578,98 C560,102 540,104 520,108 C500,116 480,128 466,138 L470,186 C470,192 460,192 458,186 L448,148 C400,154 330,156 260,154 L200,152 C180,160 170,175 176,186 C178,192 168,194 164,188 L150,150 C120,140 100,132 90,128 C70,130 50,130 30,124 Z" />
+        </symbol>
+        <symbol id="g-eye" viewBox="0 0 600 220">
+          <circle cx="552" cy="76" r="6" fill="#0d0704" />
+        </symbol>
+        <!-- fare -->
+        <symbol id="g-mouse" viewBox="0 0 200 120">
+          <path d="M45,82 C20,80 8,70 4,56" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" />
+          <path d="M40,86 C40,56 70,44 110,46 C140,48 160,60 178,76 C186,82 182,90 172,90 L60,96 C48,96 40,92 40,86 Z" fill="#ffffff" />
+          <circle cx="138" cy="44" r="16" fill="#ffffff" />
+          <circle cx="160" cy="70" r="4" fill="#0d0704" />
+        </symbol>
+        <symbol id="leaf" viewBox="0 0 34 22">
+          <path d="M2,11 C8,1 26,1 32,11 C26,21 8,21 2,11 Z" fill="rgba(201,141,85,0.38)" />
+          <line x1="2" y1="11" x2="32" y2="11" stroke="rgba(13,7,4,0.5)" stroke-width="1.5" />
+        </symbol>
+      </defs>
+    </svg>
+
+    <div id="root" data-composition-id="main" data-start="0" data-duration="43.9" data-width="1080" data-height="1920">
+      <!-- Zemin: sonbahar gradyanı, ışık hüzmeleri, düşen yapraklar -->
+      <div id="bg" class="clip" data-start="0" data-duration="43.9" data-track-index="0" data-track-kind="graphics" style="z-index: 0">
+        <div id="bg-grad"></div>
+        <div id="ray1" class="ray"></div>
+        <div id="ray2" class="ray"></div>
+        <div id="ray3" class="ray"></div>
+        <div id="leaves" data-layout-ignore></div>
+        <div id="bg-progress"></div>
+      </div>
+
+      <!-- S0: Giriş — 4 şey -->
+      <div id="s0" class="clip scene" data-start="0" data-duration="4.5" data-track-index="1" data-track-kind="graphics" style="z-index: 2">
+        <div id="s0-in" class="stage">
+          <div id="s0-top" class="center label">ÜBER MAUSWIESEL</div>
+          <div id="s0-four" class="center big">4</div>
+          <div id="s0-sub" class="center label">KAUM BEKANNTE FAKTEN</div>
+          <svg id="s0-run" class="weasel" viewBox="0 0 600 220"><use href="#g-shape" width="600" height="220" /><use href="#g-eye" width="600" height="220" /></svg>
+        </div>
+      </div>
+
+      <!-- S1: En küçük etçil, 30 g -->
+      <div id="s1" class="clip scene" data-start="4.5" data-duration="6.6" data-track-index="1" data-track-kind="graphics" style="z-index: 2">
+        <div id="s1-in" class="stage">
+          <svg id="s1-w" class="weasel" viewBox="0 0 600 220"><use href="#g-shape" width="600" height="220" /><use href="#g-eye" width="600" height="220" /></svg>
+          <svg id="s1-box" viewBox="0 0 150 100">
+            <rect x="4" y="4" width="142" height="92" rx="8" fill="none" stroke="#ffffff" stroke-width="6" />
+            <rect x="4" y="4" width="22" height="92" rx="6" fill="#ffffff" />
+            <line x1="44" y1="50" x2="128" y2="50" stroke="#ffffff" stroke-width="5" stroke-linecap="round" />
+            <circle cx="128" cy="50" r="10" fill="#ff2e88" />
+          </svg>
+          <div id="s1-et" class="center big pink">KLEINSTES<br />RAUBTIER</div>
+          <div id="s1-g" class="center big">0&nbsp;g</div>
+          <div id="s1-num" class="center big num">01</div>
+        </div>
+      </div>
+
+      <!-- S2: İştah — ⅓–½ vücut ağırlığı -->
+      <div id="s2" class="clip scene" data-start="11.1" data-duration="10.3" data-track-index="1" data-track-kind="graphics" style="z-index: 2">
+        <div id="s2-in" class="stage">
+          <div id="s2-day" class="center label">JEDEN TAG</div>
+          <div id="s2-sp1" class="speed" style="left: 20px; top: 260px; width: 220px"></div>
+          <div id="s2-sp2" class="speed" style="left: 60px; top: 320px; width: 160px"></div>
+          <div id="s2-sp3" class="speed" style="left: 0px; top: 380px; width: 200px"></div>
+          <div id="s2-wrap">
+            <svg id="s2-solid" class="weasel" viewBox="0 0 600 220"><use href="#g-shape" width="600" height="220" /><use href="#g-eye" width="600" height="220" /></svg>
+            <svg id="s2-meter" viewBox="0 0 600 220">
+              <defs><clipPath id="s2-clip"><use href="#g-shape" width="600" height="220" /></clipPath></defs>
+              <use href="#g-shape" width="600" height="220" style="color: rgba(255, 255, 255, 0.12)" />
+              <rect id="s2-fill" x="30" y="0" width="564" height="220" fill="#ff2e88" clip-path="url(#s2-clip)" />
+              <use href="#g-shape" width="600" height="220" style="color: transparent" stroke="#ffffff" stroke-width="4" />
+              <line x1="218" y1="40" x2="218" y2="200" stroke="#ffffff" stroke-width="4" stroke-dasharray="10 8" />
+              <line x1="312" y1="40" x2="312" y2="200" stroke="#ffffff" stroke-width="4" stroke-dasharray="10 8" />
+              <text id="s2-t1" class="tick" x="218" y="24" opacity="0">⅓</text>
+              <text id="s2-t2" class="tick" x="312" y="24" opacity="0">½</text>
+            </svg>
+            <div id="s2-heart" style="left: 560px; top: 150px"><i id="s2-h1"></i><i id="s2-h2"></i></div>
+          </div>
+          <div id="s2-num" class="center big num">02</div>
+        </div>
+      </div>
+
+      <!-- S3: Savaş dansı -->
+      <div id="s3" class="clip scene" data-start="21.4" data-duration="13.66" data-track-index="1" data-track-kind="graphics" style="z-index: 2">
+        <div id="s3-in" class="stage">
+          <div id="s3-w"><div id="s3-wj" style="position: absolute; inset: 0"><svg class="weasel" viewBox="0 0 600 220"><use href="#g-shape" width="600" height="220" /><use href="#g-eye" width="600" height="220" /></svg></div></div>
+          <svg id="s3-mouse" viewBox="0 0 200 120"><use href="#g-mouse" width="200" height="120" /></svg>
+          <div id="s3-title" class="center big pink">KRIEGSTANZ</div>
+          <div id="s3-q" class="center big pink">?</div>
+          <div id="s3-not" class="center label">NICHT SICHER</div>
+          <div id="s3-num" class="center big num">03</div>
+        </div>
+      </div>
+
+      <!-- S4: UV altında kış kürkü -->
+      <div id="s4" class="clip scene" data-start="35.06" data-duration="4.62" data-track-index="1" data-track-kind="graphics" style="z-index: 2">
+        <div id="s4-dark" data-layout-allow-occlusion></div>
+        <div id="s4-in" class="stage">
+          <div id="s4-beam" data-layout-allow-occlusion></div>
+          <div id="s4-lamp"></div>
+          <svg id="s4-w" class="weasel" viewBox="0 0 600 220"><use href="#g-shape" width="600" height="220" /><use href="#g-eye" width="600" height="220" /></svg>
+          <div id="s4-uv" class="center label">ULTRAVIOLETT</div>
+          <div id="s4-num" class="center big num">04</div>
+        </div>
+      </div>
+
+      <!-- S5: Kapanış -->
+      <div id="s5" class="clip scene" data-start="39.68" data-duration="4.22" data-track-index="1" data-track-kind="graphics" style="z-index: 2">
+        <div id="s5-in" class="stage">
+          <div id="c1" class="card"><b>01</b><span style="top: 44px">Kleinstes<br />Raubtier</span></div>
+          <div id="c2" class="card"><b>02</b><span>Täglich ⅓–½</span></div>
+          <div id="c3" class="card"><b>03</b><span>Kriegstanz</span></div>
+          <div id="c4" class="card"><b>04</b><span>UV-Leuchten</span></div>
+          <div id="s5-q" class="center big">WELCHE DAVON<br />WUSSTEST DU?</div>
+          <div id="s5-pill">
+            <svg viewBox="0 0 64 60"><path d="M8,6 H56 A4,4 0 0 1 60,10 V38 A4,4 0 0 1 56,42 H26 L12,54 V42 H8 A4,4 0 0 1 4,38 V10 A4,4 0 0 1 8,6 Z" fill="none" stroke="#2a1a0e" stroke-width="5" stroke-linejoin="round" /></svg>
+            IN DIE KOMMENTARE
+          </div>
+        </div>
+      </div>
+
+      <!-- Altyazılar -->
+      <div id="caps" class="clip" data-start="0" data-duration="43.9" data-track-index="2" data-track-kind="captions" style="z-index: 5">
+        <div id="g1" class="cap"><span id="g1-h1">Vier</span> Dinge über Mauswiesel,</div>
+        <div id="g2" class="cap">von denen du wahrscheinlich</div>
+        <div id="g3" class="cap">noch <span id="g3-h1">nie</span> gehört hast.</div>
+        <div id="g4" class="cap">Erstens: Das Mauswiesel</div>
+        <div id="g5" class="cap">ist das <span id="g5-h1">kleinste Raubtier</span></div>
+        <div id="g6" class="cap">der Welt.</div>
+        <div id="g7" class="cap">Manche wiegen nur</div>
+        <div id="g8" class="cap"><span id="g8-h1">30&nbsp;Gramm.</span></div>
+        <div id="g9" class="cap">Zweitens: Dieser winzige Körper</div>
+        <div id="g10" class="cap">verbrennt Energie extrem schnell.</div>
+        <div id="g11" class="cap">Ein Mauswiesel muss</div>
+        <div id="g12" class="cap"><span id="g12-h1">jeden Tag</span> zwischen</div>
+        <div id="g13" class="cap">einem <span id="g13-h1">Drittel</span> und</div>
+        <div id="g14" class="cap">der <span id="g14-h1">Hälfte</span> seines</div>
+        <div id="g15" class="cap">Körper&shy;gewichts fressen.</div>
+        <div id="g16" class="cap">Drittens: Bei der Jagd</div>
+        <div id="g17" class="cap">führt es einen</div>
+        <div id="g18" class="cap">„<span id="g18-h1">Kriegs&shy;tanz</span>“ auf:</div>
+        <div id="g19" class="cap">Es springt, dreht sich</div>
+        <div id="g20" class="cap">und schlägt Purzel&shy;bäume.</div>
+        <div id="g21" class="cap">Forscher glauben,</div>
+        <div id="g22" class="cap">dass es damit</div>
+        <div id="g23" class="cap">seine Beute verwirren will –</div>
+        <div id="g24" class="cap">aber sicher sind sie</div>
+        <div id="g25" class="cap">sich bis heute <span id="g25-h1">nicht.</span></div>
+        <div id="g26" class="cap">Viertens: Sein Winter&shy;fell</div>
+        <div id="g27" class="cap">leuchtet unter <span id="g27-h1">ultraviolettem</span></div>
+        <div id="g28" class="cap">Licht <span id="g28-h1">lila.</span></div>
+      </div>
+
+      <!-- Ses: almanca/ses/gelincik.mp3 (ElevenLabs, Ben), -14 LUFS, 0.2 sn sonra başlar -->
+      <audio id="ses" class="clip" src="assets/ses.wav" data-start="0.2" data-duration="42.59" data-track-index="10" data-volume="1"></audio>
+    </div>
+
+    <script>
+      // Almanca versiyon. Timeline saniyesi = Almanca sesteki zaman + 0.2
+      const O = 0.2;
+      const T = (t) => t + O;
+      const D = 43.9;
+      const tl = gsap.timeline({ paused: true });
+      const IN = "power3.out";
+      const OUT = "power2.in";
+      const $ = (s) => document.querySelector(s);
+
+      function bob(sel, start, end, prop, amp, period) {
+        let t = start, k = 0;
+        while (t < end) {
+          const d = Math.min(period / 2, end - t);
+          tl.to(sel, { [prop]: k % 2 === 0 ? -amp : amp, duration: d, ease: "sine.inOut" }, t);
+          t += d; k++;
+        }
+      }
+      function badge(sel, t0, t1) {
+        tl.fromTo(sel, { opacity: 0, scale: 1.4, y: 0 }, { opacity: 1, scale: 1, duration: 0.25, ease: IN }, t0);
+        tl.to(sel, { y: -385, scale: 0.3, duration: 0.35, ease: "power3.inOut" }, t1);
+      }
+
+      // ---------- Zemin: hüzmeler + düşen yapraklar (deterministik) ----------
+      tl.fromTo("#bg-progress", { scaleX: 0 }, { scaleX: 1, duration: D, ease: "none" }, 0);
+      [["#ray1", 8, 9], ["#ray2", -6, 12], ["#ray3", 5, 10]].forEach(([r, a, p]) => {
+        tl.fromTo(r, { rotation: a }, { rotation: -a, duration: p, ease: "sine.inOut" }, 0);
+        let t = p, s = -a;
+        while (t < D) { const d = Math.min(p, D - t); s = -s; tl.to(r, { rotation: s, duration: d, ease: "sine.inOut" }, t); t += d; }
+      });
+      const leaves = $("#leaves");
+      for (let i = 0; i < 30; i++) {
+        const dur = [9, 10.5, 12, 13.5][i % 4], s = -9 + 1.5 * i;
+        if (s >= D) break;
+        const el = document.createElement("div");
+        el.className = "leaf"; el.setAttribute("data-layout-ignore", "");
+        el.style.left = ((60 + 271 * i) % 1020) + "px";
+        el.style.transform = `scale(${0.8 + (i % 3) * 0.35})`;
+        el.innerHTML = '<svg viewBox="0 0 34 22" width="34" height="22"><use href="#leaf" width="34" height="22" /></svg>';
+        leaves.appendChild(el);
+        const y0 = -60, y1 = 2000, sw = (i % 2 ? 1 : -1) * (40 + (i % 3) * 20), r0 = (i * 37) % 360, r1 = r0 + (i % 2 ? 300 : -300);
+        if (s >= 0) {
+          tl.fromTo(el, { y: y0, x: 0, rotation: r0 }, { y: y1, x: sw, rotation: r1, duration: Math.min(dur, D - s), ease: "none" }, s);
+        } else {
+          const f = -s / dur;
+          if (f >= 1) { el.remove(); continue; }
+          tl.fromTo(el, { y: y0 + (y1 - y0) * f, x: sw * f, rotation: r0 + (r1 - r0) * f }, { y: y1, x: sw, rotation: r1, duration: dur * (1 - f), ease: "none" }, 0);
+        }
+      }
+
+      // ---------- S0 Giriş (0 – 4.5) | Almanca kelime zamanları: almanca/cikti/transkript/gelincik/gelincik.json ----------
+      tl.fromTo("#s0-four", { scale: 0.7, opacity: 0.35, y: 120 }, { scale: 1, opacity: 1, y: 0, color: "#ff2e88", duration: 0.3, ease: "back.out(2)" }, T(0.0)); // Vier
+      tl.to("#s0-four", { scale: 1.05, duration: 4.0, ease: "none" }, T(0.3));
+      tl.fromTo("#s0-top", { opacity: 1, y: 0 }, { y: -10, duration: 4.5, ease: "none" }, 0);
+      tl.fromTo("#s0-sub", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.25, ease: IN }, T(2.70)); // noch nie
+      tl.fromTo("#s0-run", { x: -320 }, { x: 1100, duration: 4.5, ease: "none" }, 0);
+      bob("#s0-run", 0, 4.5, "y", 14, 0.4);
+
+      // ---------- S1 Kleinstes Raubtier (4.5 – 11.1) ----------
+      badge("#s1-num", 4.5, T(5.46));                                         // Erstens → das Mauswiesel
+      tl.fromTo("#s1-w", { x: -900 }, { x: 0, duration: 0.55, ease: IN }, T(5.46));
+      bob("#s1-w", T(6.0), T(8.8), "y", 6, 1.6);
+      tl.fromTo("#s1-et", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.25, ease: IN }, T(6.60)); // kleinste Raubtier
+      tl.to("#s1-et", { opacity: 0, y: -20, duration: 0.2, ease: OUT }, T(8.80));
+      tl.to("#s1-w", { x: -170, scale: 0.75, duration: 0.45, ease: "power3.inOut" }, T(8.80)); // Manche
+      tl.fromTo("#s1-box", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.3, ease: IN }, T(9.0));
+      const gr = { v: 0 };
+      tl.fromTo("#s1-g", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.2, ease: IN }, T(9.42));
+      tl.fromTo(gr, { v: 0 }, { v: 30, duration: 0.6, ease: "power2.out", onUpdate: () => { $("#s1-g").textContent = Math.round(gr.v) + " g"; } }, T(9.60)); // 30
+      tl.to("#s1-g", { color: "#ff2e88", scale: 1.08, duration: 0.15, ease: IN }, T(10.06)); // Gramm
+      tl.to("#s1-g", { scale: 1, duration: 0.25, ease: "power2.out" }, T(10.21));
+      tl.fromTo("#s1-in", { scale: 1 }, { scale: 1.04, duration: 2.2, ease: "none" }, T(8.8));
+
+      // ---------- S2 Hunger (11.1 – 21.4) ----------
+      badge("#s2-num", 11.1, T(12.0));                                        // Zweitens → dieser winzige Körper
+      tl.fromTo("#s2-wrap", { x: 900 }, { x: 0, duration: 0.5, ease: IN }, T(12.0));
+      ["#s2-sp1", "#s2-sp2", "#s2-sp3"].forEach((s, i) => {               // verbrennt ... extrem schnell
+        for (let t = T(13.14) + i * 0.12; t < T(15.4); t += 0.5) {
+          tl.fromTo(s, { scaleX: 0.2, opacity: 0.9, x: 0 }, { scaleX: 1, opacity: 0, x: -60, duration: 0.45, ease: "power1.out" }, t);
+        }
+      });
+      [["#s2-h1", 0], ["#s2-h2", 0.25]].forEach(([h, d]) => {              // Energie
+        for (let t = T(13.78) + d; t < T(15.5); t += 0.5) {
+          tl.fromTo(h, { scale: 0.3, opacity: 1 }, { scale: 2.2, opacity: 0, duration: 0.45, ease: "power2.out" }, t);
+        }
+      });
+      tl.fromTo("#s2-day", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.25, ease: IN }, T(16.96)); // jeden Tag
+      tl.to("#s2-solid", { opacity: 0, duration: 0.25, ease: OUT }, T(17.58));                       // zwischen
+      tl.fromTo("#s2-meter", { opacity: 0 }, { opacity: 1, duration: 0.25, ease: IN }, T(17.58));
+      tl.set("#s2-fill", { attr: { width: 0 } }, 0);
+      tl.fromTo("#s2-t1", { opacity: 0 }, { opacity: 1, duration: 0.2 }, T(18.0));
+      tl.to("#s2-fill", { attr: { width: 188 }, duration: 0.45, ease: "power2.out" }, T(18.20)); // Drittel
+      tl.fromTo("#s2-t2", { opacity: 0 }, { opacity: 1, duration: 0.2 }, T(18.72));
+      tl.to("#s2-fill", { attr: { width: 282 }, duration: 0.4, ease: "power2.out" }, T(18.88)); // Hälfte
+      [[188, 19.5], [282, 19.9], [188, 20.3], [282, 20.7]].forEach(([w, t]) => {
+        tl.to("#s2-fill", { attr: { width: w }, duration: 0.4, ease: "sine.inOut" }, T(t));
+      });
+      tl.fromTo("#s2-in", { scale: 1 }, { scale: 1.04, duration: 3.8, ease: "none" }, T(17.58));
+
+      // ---------- S3 Kriegstanz (21.4 – 35.06) ----------
+      badge("#s3-num", 21.4, T(22.3));                                        // Drittens → bei der Jagd
+      tl.fromTo("#s3-w", { x: -900 }, { x: 0, duration: 0.5, ease: IN }, T(22.3));
+      tl.fromTo("#s3-title", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.25, ease: "back.out(2)" }, T(23.74)); // Kriegstanz
+      // springt
+      tl.to("#s3-wj", { y: -140, duration: 0.22, ease: "power2.out" }, T(25.84));
+      tl.to("#s3-wj", { y: 0, duration: 0.22, ease: "power2.in" }, T(26.06));
+      // dreht sich
+      tl.fromTo("#s3-wj", { scaleX: 1 }, { scaleX: -1, duration: 0.18, ease: "sine.inOut" }, T(26.84));
+      tl.to("#s3-wj", { scaleX: 1, duration: 0.18, ease: "sine.inOut" }, T(27.02));
+      // schlägt Purzelbäume
+      tl.to("#s3-wj", { y: -90, duration: 0.3, ease: "power2.out" }, T(27.9));
+      tl.fromTo("#s3-wj", { rotation: 0 }, { rotation: -360, duration: 0.6, ease: "power1.inOut" }, T(27.9));
+      tl.to("#s3-wj", { y: 0, duration: 0.3, ease: "power2.in" }, T(28.2));
+      // Beute verwirren
+      tl.to("#s3-title", { opacity: 0, y: -20, duration: 0.2, ease: OUT }, T(28.98));             // Forscher
+      tl.to("#s3-w", { x: -170, scale: 0.8, duration: 0.45, ease: "power3.inOut" }, T(28.98));
+      tl.fromTo("#s3-mouse", { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: 0.3, ease: IN }, T(31.56)); // Beute
+      tl.to("#s3-mouse", { keyframes: { x: [0, 30, 10, 40, 25], rotation: [0, 8, -6, 6, 0] }, duration: 0.5, ease: "none" }, T(31.86)); // verwirren
+      bob("#s3-wj", T(29.4), T(35.06), "y", 8, 0.9);
+      tl.fromTo("#s3-q", { opacity: 0, scale: 1.4 }, { opacity: 1, scale: 1, duration: 0.25, ease: "back.out(2)" }, T(33.16)); // sicher
+      tl.fromTo("#s3-not", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.25, ease: IN }, T(34.36)); // nicht
+      tl.to("#s3-q", { rotation: 10, duration: 0.15, ease: "sine.inOut" }, T(34.5));
+      tl.to("#s3-q", { rotation: 0, duration: 0.2, ease: "sine.inOut" }, T(34.65));
+
+      // ---------- S4 UV (35.06 – 39.68) ----------
+      badge("#s4-num", 35.06, T(35.92));                                      // Viertens → sein Winterfell
+      tl.fromTo("#s4-w", { x: 900 }, { x: 0, duration: 0.5, ease: IN }, T(35.92));
+      tl.to("#s4-w", { color: "#ffffff", duration: 0.35, ease: "none" }, T(36.2));                  // Winterfell → weiß
+      tl.to("#s4-dark", { opacity: 0.6, duration: 0.3, ease: "none" }, T(37.30));                    // ultraviolettem
+      tl.fromTo("#s4-lamp", { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: 0.25, ease: IN }, T(37.30));
+      tl.fromTo("#s4-beam", { opacity: 0, scaleY: 0.2 }, { opacity: 1, scaleY: 1, duration: 0.35, ease: IN }, T(37.44));
+      tl.fromTo("#s4-uv", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.25, ease: IN }, T(37.44));
+      tl.fromTo("#s4-beam", { rotation: 0 }, { rotation: -6, duration: 0.5, ease: "sine.inOut" }, T(37.8));
+      tl.to("#s4-beam", { rotation: 0, duration: 0.5, ease: "sine.inOut" }, T(38.3));
+      tl.to("#s4-w", { color: "#c9a7ff", filter: "drop-shadow(0 0 40px rgba(201,167,255,0.9))", duration: 0.35, ease: "none" }, T(38.52)); // lila
+      tl.to("#s4-uv", { color: "#c9a7ff", duration: 0.3, ease: "none" }, T(38.52));
+      tl.to("#s4-w", { filter: "drop-shadow(0 0 70px rgba(201,167,255,1))", duration: 0.5, ease: "sine.inOut" }, T(38.9));
+      tl.fromTo("#s4-in", { scale: 1 }, { scale: 1.05, duration: 2.4, ease: "none" }, T(37.3));
+
+      // ---------- S5 Abschluss (39.68 – 43.9) ----------
+      tl.fromTo("#s5-in", { scale: 1.2, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: IN }, 39.68);
+      ["#c1", "#c2", "#c3", "#c4"].forEach((c, i) => {
+        tl.fromTo(c, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.25, ease: IN }, 39.73 + i * 0.08);
+        tl.to(c, { borderColor: "#ff2e88", duration: 0.12, ease: "none" }, T(39.95) + i * 0.25);
+        tl.to(c, { borderColor: "rgba(255,255,255,0.3)", duration: 0.2, ease: "none" }, T(39.95) + i * 0.25 + 0.3);
+      });
+      tl.fromTo("#s5-q", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.3, ease: IN }, T(39.68)); // Welche davon
+      tl.fromTo("#s5-pill", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, T(41.26)); // Schreib's
+      [42.7, 43.4].forEach((t) => {
+        tl.to("#s5-pill", { scale: 1.06, duration: 0.15, ease: IN }, t);
+        tl.to("#s5-pill", { scale: 1, duration: 0.3, ease: "power2.out" }, t + 0.15);
+      });
+      tl.fromTo("#s5-q", { scale: 1 }, { scale: 1.04, duration: 3.6, ease: "none" }, 40.3);
+
+      // ---------- Altyazılar (ses zamanı; en fazla 4 kelime) ----------
+      const caps = [
+        ["#g1", 0.0, 1.56, [["#g1-h1", 0.0]]],
+        ["#g2", 1.56, 2.7, []],
+        ["#g3", 2.7, 4.3, [["#g3-h1", 3.02]]],
+        ["#g4", 4.44, 6.14, []],
+        ["#g5", 6.14, 7.74, [["#g5-h1", 6.6]]],
+        ["#g6", 7.74, 8.8, []],
+        ["#g7", 8.8, 9.6, []],
+        ["#g8", 9.6, 10.9, [["#g8-h1", 9.6]]],
+        ["#g9", 10.98, 13.14, []],
+        ["#g10", 13.14, 15.96, []],
+        ["#g11", 15.96, 16.96, []],
+        ["#g12", 16.96, 17.86, [["#g12-h1", 16.96]]],
+        ["#g13", 17.86, 18.72, [["#g13-h1", 18.2]]],
+        ["#g14", 18.72, 19.48, [["#g14-h1", 18.88]]],
+        ["#g15", 19.48, 21.2, []],
+        ["#g16", 21.4, 22.98, []],
+        ["#g17", 22.98, 23.74, []],
+        ["#g18", 23.74, 25.58, [["#g18-h1", 23.74]]],
+        ["#g19", 25.58, 27.32, []],
+        ["#g20", 27.32, 28.98, []],
+        ["#g21", 28.98, 30.7, []],
+        ["#g22", 30.7, 31.34, []],
+        ["#g23", 31.34, 33.04, []],
+        ["#g24", 33.04, 33.78, []],
+        ["#g25", 33.78, 34.9, [["#g25-h1", 34.36]]],
+        ["#g26", 35.06, 36.54, []],
+        ["#g27", 36.54, 38.26, [["#g27-h1", 37.3]]],
+        ["#g28", 38.26, 39.48, [["#g28-h1", 38.52]]]
+      ];
+      caps.forEach(([id, s0, e0, hl]) => {
+        const s = T(s0), e = T(e0);
+        tl.set(id, { visibility: "visible" }, s);
+        tl.fromTo(id, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.25, ease: IN }, s);
+        hl.forEach(([h, t]) => tl.fromTo(h, { color: "#ffffff" }, { color: "#ff2e88", duration: 0.12, ease: "none" }, T(t)));
+        tl.to(id, { opacity: 0, duration: 0.2, ease: OUT }, e - 0.2);
+        tl.set(id, { opacity: 0, visibility: "hidden" }, e);
+      });
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
